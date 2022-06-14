@@ -5,102 +5,93 @@ let s:running_macvim = has('gui_macvim')
 let s:colorful_term = (&term =~ "xterm") || (&term =~ "screen")
 " }}}
 
-set runtimepath+=~/.vim
-
-" enable :Man to view highlighted man pages, :h find-manpage
-runtime! ftplugin/man.vim
-
 scriptencoding utf-8 "UTF-8!
 se t_Co=256 " 256 colors, make sure Putty uses term: xterm-256color
 " Also, you should probable make sure .screenrc has 'term screen-256color'
 
 " Install Vim-Plug automatically if absent
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
+" if empty(glob('~/.vim/autoload/plug.vim'))
+    " silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    " autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+" endif
 
 " VimPlug modules {{{
-call plug#begin('~/.vim/plugged')
+" call plug#begin('~/.vim/plugged')
 
-Plug 'sirver/ultisnips'
+" Plug 'sirver/ultisnips'
 "Plug 'honza/vim-snippets' " Disabled because it masks too many of my own snippets
-Plug 'haya14busa/incsearch.vim' " incsearch for all results and all modes
-Plug 'ludovicchabant/vim-gutentags' " Tag manager
-Plug 'triglav/vim-visual-increment' " c-v then c-a to auto-increment numbers
+" Plug 'haya14busa/incsearch.vim' " incsearch for all results and all modes
+" Plug 'ludovicchabant/vim-gutentags' " Tag manager
+" Plug 'triglav/vim-visual-increment' " c-v then c-a to auto-increment numbers
 
-Plug 'majutsushi/tagbar' " Tag sidebar
+" Plug 'majutsushi/tagbar' " Tag sidebar
 
 " Shell utility integrations {{{
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-" Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'junegunn/fzf.vim'
-Plug 'jremmen/vim-ripgrep' " :Rg
-Plug 'tpope/vim-fugitive' " Git integration for Vim
-Plug 'tpope/vim-rhubarb' " Github (hub) integration for Vim
-Plug 'airblade/vim-gitgutter' " Git diff info in the left gutter
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" Plug 'junegunn/fzf.vim'
+" Plug 'jremmen/vim-ripgrep' " :Rg
+" Plug 'tpope/vim-fugitive' " Git integration for Vim
+" Plug 'tpope/vim-rhubarb' " Github (hub) integration for Vim
+" Plug 'airblade/vim-gitgutter' " Git diff info in the left gutter
 " }}}
 
 " Handy Commands {{{
-Plug 'godlygeek/tabular'
-Plug 'chiedo/vim-sort-blocks-by'
+" Plug 'godlygeek/tabular'
+" Plug 'chiedo/vim-sort-blocks-by'
 " }}}
 
 " Motion enhancers {{{
-Plug 'tpope/vim-commentary' " gc{motion} to comment, or {count}gcc
-Plug 'tpope/vim-abolish' " Word variant utilities like case-preserving :%S/place{,s}/cit{y,ies}/g
-Plug 'tpope/vim-surround'
-Plug 'tmhedberg/matchit' " make % work in more languages
-Plug 'tpope/vim-unimpaired' " handy mappings like [q, ]q, [a, ]b
-Plug 'vim-scripts/argtextobj.vim' " Function arguments as text objects: ia, aa
-Plug 'AndrewRadev/splitjoin.vim'
+" Plug 'tpope/vim-commentary' " gc{motion} to comment, or {count}gcc
+" Plug 'tpope/vim-abolish' " Word variant utilities like case-preserving :%S/place{,s}/cit{y,ies}/g
+" Plug 'tpope/vim-surround'
+" Plug 'tmhedberg/matchit' " make % work in more languages
+" Plug 'tpope/vim-unimpaired' " handy mappings like [q, ]q, [a, ]b
+" Plug 'vim-scripts/argtextobj.vim' " Function arguments as text objects: ia, aa
+" Plug 'AndrewRadev/splitjoin.vim'
 " }}}
 
 " Linters/Formatters {{{
-Plug 'w0rp/ale' " async linting engine, better than Syntastic
+" Plug 'w0rp/ale' " async linting engine, better than Syntastic
 "Plug 'vim-syntastic/syntastic' " Linter manager
-Plug 'chiel92/vim-autoformat'
-Plug 'editorconfig/editorconfig-vim' " Cross-editor code formatting settings
+" Plug 'chiel92/vim-autoformat'
+" Plug 'editorconfig/editorconfig-vim' " Cross-editor code formatting settings
 " }}}
 
 " Language support {{{
-Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
+" Plug 'pangloss/vim-javascript'
+" Plug 'mxw/vim-jsx'
 "Plug 'othree/yajs.vim' "Javascript
 "Plug 'ternjs/tern_for_vim' " Tern, JS language support via static analysis
-Plug 'jelera/vim-javascript-syntax'
-Plug 'tpope/vim-jdaddy' "Json text objects
-Plug 'chrisbra/csv.vim'
-Plug 'tweekmonster/braceless.vim' " text objects and more for Python and other indented code
-Plug 'vim-ruby/vim-ruby' " includes eruby (ERB templates)
-Plug 'kana/vim-textobj-user' " textobj library used by poetic/vim-textobj-javascript
+" Plug 'jelera/vim-javascript-syntax'
+" Plug 'tpope/vim-jdaddy' "Json text objects
+" Plug 'chrisbra/csv.vim'
+" Plug 'tweekmonster/braceless.vim' " text objects and more for Python and other indented code
+" Plug 'vim-ruby/vim-ruby' " includes eruby (ERB templates)
+" Plug 'kana/vim-textobj-user' " textobj library used by poetic/vim-textobj-javascript
 "Plug 'poetic/vim-textobj-javascript' " text object for a javascript 'chunk' {...}
-Plug 'sunaku/vim-ruby-minitest'
+" Plug 'sunaku/vim-ruby-minitest'
 "Plug 'actionshrimp/vim-xpath' " XPath browsing tool
-Plug 'nikvdp/ejs-syntax'
-Plug 'vim-scripts/vim-babel'
-Plug 'mattn/webapi-vim' "dependency for vim-babel (json decoding)
+" Plug 'nikvdp/ejs-syntax'
+" Plug 'vim-scripts/vim-babel'
+" Plug 'mattn/webapi-vim' "dependency for vim-babel (json decoding)
 " }}}
 
 " Visual {{{
-Plug 'RRethy/vim-illuminate' " highlight word under cursor
-Plug 'altercation/vim-colors-solarized' "solarized colorschemes
-Plug 'phanviet/vim-monokai-pro' "monokai-pro colorscheme
-Plug 'morhetz/gruvbox' " grubox colorscheme
-Plug 'fcpg/vim-fahrenheit' " fahrenheight colorscheme
-Plug 'vim-scripts/Wombat' " wombat colorscheme
-Plug 'vim-scripts/wombat256.vim' " wombat256mod colorscheme
-Plug 'fcpg/vim-orbital' " orbital colorscheme
-Plug 'kmszk/skyhawk' " colorscheme
-Plug 'nathanaelkane/vim-indent-guides' " shows indentation levels
+" Plug 'RRethy/vim-illuminate' " highlight word under cursor
+" Plug 'altercation/vim-colors-solarized' "solarized colorschemes
+" Plug 'phanviet/vim-monokai-pro' "monokai-pro colorscheme
+" Plug 'morhetz/gruvbox' " grubox colorscheme
+" Plug 'fcpg/vim-fahrenheit' " fahrenheight colorscheme
+" Plug 'vim-scripts/Wombat' " wombat colorscheme
+" Plug 'vim-scripts/wombat256.vim' " wombat256mod colorscheme
+" Plug 'fcpg/vim-orbital' " orbital colorscheme
+" Plug 'kmszk/skyhawk' " colorscheme
+" Plug 'nathanaelkane/vim-indent-guides' " shows indentation levels
 " }}}
 
-" Railsy stuff {{{
-Plug 'tpope/gem-browse' " 'gem open capybara' or 'gem browse sprockets'
-" }}}
-
-let g:jsx_ext_required = 0
-call plug#end()
+" let g:jsx_ext_required = 0
+" call plug#end()
 " }}}
 
 " {{{ Auto paste mode for terminal pastes
@@ -117,57 +108,57 @@ function! XTermPasteBegin()
 endfunction
 " }}}
 
-set path=.,,**
+" set path=.,,**
 
-" {{{ Plugins
-"{{{ vim-illuminate
-highlight illuminatedWord ctermfg=red
-"}}}
-"{{{ vim-ripgrep
-let g:rg_derive_root=1
-"}}}
-" {{{ Ale config
-let g:ale_fixers = {
-            \ 'javascript': ['prettier', 'eslint'],
-            \ 'javascript.jsx': ['prettier', 'eslint'],
-            \ 'ruby': ['rubocop'],
-            \ 'cpp': ['clang-format'],
-            \ 'css': ['prettier'],
-            \ 'scss': ['stylelint'],
-            \}
-
-let g:ale_linters = {
-            \ 'javascript': ['eslint'],
-            \ 'javascript.jsx': ['eslint'],
-            \ 'css': ['stylelint'],
-            \ 'ruby': ['rubocop', 'brakeman'],
-            \}
-
-let g:ale_open_list='never'
-let g:ale_fix_on_save=1
-let g:ale_lint_on_text_change=1
-
-nmap ]v :ALENextWrap<cr>
-nmap [v :ALEPreviousWrap<cr>
-" }}}
-" {{{ Tagbar
-nmap <leader>tb :TagbarToggle<cr>
-" }}}
-" {{{ vim-diminactive plugin
-let g:diminactive_use_colorcolumn = 0
-let g:diminactive_use_syntax = 1
-" }}}
-" {{{ Ultisnips
-"let g:UltiSnipsSnippetDirectories = $HOME.'/.vim/UltiSnips'
-let g:UltiSnipsSnippetDirectories=["UltiSnips"] " Search rtp dirs for snippets in UltiSnips dirs.
-nmap <leader>ue :UltiSnipsEdit<cr>
-let g:UltiSnipsEditSplit="horizontal"
-" }}}
-" {{{ javascript
-let g:javascript_plugin_jsdoc = 0
-let g:javascript_plugin_flow = 0
-" }}}
-" }}}
+"" " {{{ Plugins
+"" "{{{ vim-illuminate
+"" highlight illuminatedWord ctermfg=red
+"" "}}}
+"" "{{{ vim-ripgrep
+"" let g:rg_derive_root=1
+"" "}}}
+"" " {{{ Ale config
+"" let g:ale_fixers = {
+""             \ 'javascript': ['prettier', 'eslint'],
+""             \ 'javascript.jsx': ['prettier', 'eslint'],
+""             \ 'ruby': ['rubocop'],
+""             \ 'cpp': ['clang-format'],
+""             \ 'css': ['prettier'],
+""             \ 'scss': ['stylelint'],
+""             \}
+"" 
+"" let g:ale_linters = {
+""             \ 'javascript': ['eslint'],
+""             \ 'javascript.jsx': ['eslint'],
+""             \ 'css': ['stylelint'],
+""             \ 'ruby': ['rubocop', 'brakeman'],
+""             \}
+"" 
+"" let g:ale_open_list='never'
+"" let g:ale_fix_on_save=1
+"" let g:ale_lint_on_text_change=1
+"" 
+"" nmap ]v :ALENextWrap<cr>
+"" nmap [v :ALEPreviousWrap<cr>
+"" " }}}
+"" " {{{ Tagbar
+"" nmap <leader>tb :TagbarToggle<cr>
+"" " }}}
+"" " {{{ vim-diminactive plugin
+"" let g:diminactive_use_colorcolumn = 0
+"" let g:diminactive_use_syntax = 1
+"" " }}}
+"" " {{{ Ultisnips
+"" "let g:UltiSnipsSnippetDirectories = $HOME.'/.vim/UltiSnips'
+"" let g:UltiSnipsSnippetDirectories=["UltiSnips"] " Search rtp dirs for snippets in UltiSnips dirs.
+"" nmap <leader>ue :UltiSnipsEdit<cr>
+"" let g:UltiSnipsEditSplit="horizontal"
+"" " }}}
+"" " {{{ javascript
+"" let g:javascript_plugin_jsdoc = 0
+"" let g:javascript_plugin_flow = 0
+"" " }}}
+"" " }}}
 
 " {{{ Set
 " {{{2 grepprg
