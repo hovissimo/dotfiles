@@ -1,0 +1,5 @@
+*.sw*
+
+.vim/undo/*
+.vim/temp/*
+.vim/backup/*
