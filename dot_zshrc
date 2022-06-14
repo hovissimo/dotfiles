@@ -1,0 +1,10 @@
+source "$HOME/.antigen/antigen.zsh"
+
+antigen use oh-my-zsh
+antigen bundle arialdomartini/oh-my-git
+antigen theme arialdomartini/oh-my-git-themes arialso-granzestyle
+
+antigen apply
+
+PROMPT='%B%1~%b %F{011}%(!.!.>)%f '
+RPROMPT='%n@%M %F{015}%B%T%b%f'
