@@ -1,0 +1,735 @@
+" {{{ Environment Detection
+let s:running_windows = has("win16") || has("win32") || has("win64")
+let s:running_cygwin = has('win32unix')
+let s:running_macvim = has('gui_macvim')
+let s:colorful_term = (&term =~ "xterm") || (&term =~ "screen")
+" }}}
+
+set runtimepath+=~/.vim
+
+" enable :Man to view highlighted man pages, :h find-manpage
+runtime! ftplugin/man.vim
+
+scriptencoding utf-8 "UTF-8!
+se t_Co=256 " 256 colors, make sure Putty uses term: xterm-256color
+" Also, you should probable make sure .screenrc has 'term screen-256color'
+
+" Install Vim-Plug automatically if absent
+if empty(glob('~/.vim/autoload/plug.vim'))
+    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" VimPlug modules {{{
+call plug#begin('~/.vim/plugged')
+
+Plug 'sirver/ultisnips'
+"Plug 'honza/vim-snippets' " Disabled because it masks too many of my own snippets
+Plug 'haya14busa/incsearch.vim' " incsearch for all results and all modes
+Plug 'ludovicchabant/vim-gutentags' " Tag manager
+Plug 'triglav/vim-visual-increment' " c-v then c-a to auto-increment numbers
+
+Plug 'majutsushi/tagbar' " Tag sidebar
+
+" Shell utility integrations {{{
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'junegunn/fzf.vim'
+Plug 'jremmen/vim-ripgrep' " :Rg
+Plug 'tpope/vim-fugitive' " Git integration for Vim
+Plug 'tpope/vim-rhubarb' " Github (hub) integration for Vim
+Plug 'airblade/vim-gitgutter' " Git diff info in the left gutter
+" }}}
+
+" Handy Commands {{{
+Plug 'godlygeek/tabular'
+Plug 'chiedo/vim-sort-blocks-by'
+" }}}
+
+" Motion enhancers {{{
+Plug 'tpope/vim-commentary' " gc{motion} to comment, or {count}gcc
+Plug 'tpope/vim-abolish' " Word variant utilities like case-preserving :%S/place{,s}/cit{y,ies}/g
+Plug 'tpope/vim-surround'
+Plug 'tmhedberg/matchit' " make % work in more languages
+Plug 'tpope/vim-unimpaired' " handy mappings like [q, ]q, [a, ]b
+Plug 'vim-scripts/argtextobj.vim' " Function arguments as text objects: ia, aa
+Plug 'AndrewRadev/splitjoin.vim'
+" }}}
+
+" Linters/Formatters {{{
+Plug 'w0rp/ale' " async linting engine, better than Syntastic
+"Plug 'vim-syntastic/syntastic' " Linter manager
+Plug 'chiel92/vim-autoformat'
+Plug 'editorconfig/editorconfig-vim' " Cross-editor code formatting settings
+" }}}
+
+" Language support {{{
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+"Plug 'othree/yajs.vim' "Javascript
+"Plug 'ternjs/tern_for_vim' " Tern, JS language support via static analysis
+Plug 'jelera/vim-javascript-syntax'
+Plug 'tpope/vim-jdaddy' "Json text objects
+Plug 'chrisbra/csv.vim'
+Plug 'tweekmonster/braceless.vim' " text objects and more for Python and other indented code
+Plug 'vim-ruby/vim-ruby' " includes eruby (ERB templates)
+Plug 'kana/vim-textobj-user' " textobj library used by poetic/vim-textobj-javascript
+"Plug 'poetic/vim-textobj-javascript' " text object for a javascript 'chunk' {...}
+Plug 'sunaku/vim-ruby-minitest'
+"Plug 'actionshrimp/vim-xpath' " XPath browsing tool
+Plug 'nikvdp/ejs-syntax'
+Plug 'vim-scripts/vim-babel'
+Plug 'mattn/webapi-vim' "dependency for vim-babel (json decoding)
+" }}}
+
+" Visual {{{
+Plug 'RRethy/vim-illuminate' " highlight word under cursor
+Plug 'altercation/vim-colors-solarized' "solarized colorschemes
+Plug 'phanviet/vim-monokai-pro' "monokai-pro colorscheme
+Plug 'morhetz/gruvbox' " grubox colorscheme
+Plug 'fcpg/vim-fahrenheit' " fahrenheight colorscheme
+Plug 'vim-scripts/Wombat' " wombat colorscheme
+Plug 'vim-scripts/wombat256.vim' " wombat256mod colorscheme
+Plug 'fcpg/vim-orbital' " orbital colorscheme
+Plug 'kmszk/skyhawk' " colorscheme
+Plug 'nathanaelkane/vim-indent-guides' " shows indentation levels
+" }}}
+
+" Railsy stuff {{{
+Plug 'tpope/gem-browse' " 'gem open capybara' or 'gem browse sprockets'
+" }}}
+
+let g:jsx_ext_required = 0
+call plug#end()
+" }}}
+
+" {{{ Auto paste mode for terminal pastes
+" https://coderwall.com/p/if9mda/automatically-set-paste-mode-in-vim-when-pasting-in-insert-mode
+let &t_SI .= "\<Esc>[?2004h"
+let &t_EI .= "\<Esc>[?2004l"
+
+inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
+
+function! XTermPasteBegin()
+    set pastetoggle=<Esc>[201~
+    set paste
+    return ""
+endfunction
+" }}}
+
+set path=.,,**
+
+" {{{ Plugins
+"{{{ vim-illuminate
+highlight illuminatedWord ctermfg=red
+"}}}
+"{{{ vim-ripgrep
+let g:rg_derive_root=1
+"}}}
+" {{{ Ale config
+let g:ale_fixers = {
+            \ 'javascript': ['prettier', 'eslint'],
+            \ 'javascript.jsx': ['prettier', 'eslint'],
+            \ 'ruby': ['rubocop'],
+            \ 'cpp': ['clang-format'],
+            \ 'css': ['prettier'],
+            \ 'scss': ['stylelint'],
+            \}
+
+let g:ale_linters = {
+            \ 'javascript': ['eslint'],
+            \ 'javascript.jsx': ['eslint'],
+            \ 'css': ['stylelint'],
+            \ 'ruby': ['rubocop', 'brakeman'],
+            \}
+
+let g:ale_open_list='never'
+let g:ale_fix_on_save=1
+let g:ale_lint_on_text_change=1
+
+nmap ]v :ALENextWrap<cr>
+nmap [v :ALEPreviousWrap<cr>
+" }}}
+" {{{ Tagbar
+nmap <leader>tb :TagbarToggle<cr>
+" }}}
+" {{{ vim-diminactive plugin
+let g:diminactive_use_colorcolumn = 0
+let g:diminactive_use_syntax = 1
+" }}}
+" {{{ Ultisnips
+"let g:UltiSnipsSnippetDirectories = $HOME.'/.vim/UltiSnips'
+let g:UltiSnipsSnippetDirectories=["UltiSnips"] " Search rtp dirs for snippets in UltiSnips dirs.
+nmap <leader>ue :UltiSnipsEdit<cr>
+let g:UltiSnipsEditSplit="horizontal"
+" }}}
+" {{{ javascript
+let g:javascript_plugin_jsdoc = 0
+let g:javascript_plugin_flow = 0
+" }}}
+" }}}
+
+" {{{ Set
+" {{{2 grepprg
+if executable("rg")
+    set grepprg=rg\ --vimgrep\ --no-heading\ -S
+    set grepformat=%f:%l:%c:%m,%f:%l:%m
+endif
+" }}}2
+" {{{2 Security
+"modelines can be dangerous, but useful
+set nomodeline
+if $USER != "root"
+    set modeline
+endif
+" }}}2
+" {{{2 General
+set updatetime=1000 " ms to wait before saving to swap
+set diffopt=hiddenoff,iwhite,context:10
+set backupcopy=yes "helps file watchers see changes
+set hidden
+set nocompatible
+set background=dark
+set fileencoding=utf-8
+set encoding=utf-8
+set foldlevel=9
+syntax on
+set history=9999
+set timeoutlen=500 "ms timeout for key sequences to complete
+set nomore "don't pause for large walls of text
+set ttyfast "we're almost always using fast terminals
+set mouse=nv " no mouse in insert mode, prevent trackpad annoyance
+set nobomb "Don't include Byte Order Marks when saving
+set backspace=indent,start,eol
+set backup
+set autoindent
+set smartindent
+filetype indent plugin on
+
+set backupdir=~/.vim/backup// " where to put backup files
+set undodir=~/.vim/undo// " where to put undo files
+set directory=~/.vim/temp// " directory to place swap files in
+
+set fileformats=unix,dos,mac
+
+set wildmenu
+set wildignore+=*.swp
+" non-source files
+set wildignore+=*.pdf
+set wildignore+=*.pyo
+set wildignore+=*.pyc
+set wildignore+=*.zip
+set wildignore+=*.so
+set wildignore+=*.swp
+set wildignore+=*.dll
+set wildignore+=*.o
+set wildignore+=*.DS_Store
+set wildignore+=*.obj
+set wildignore+=*.bak
+set wildignore+=*.exe
+set wildignore+=*.pyc
+set wildignore+=*.jpg
+set wildignore+=*.gif
+set wildignore+=*.png
+set wildignore+=*.a
+set wildignore+=*node_modules/*
+set wildignore+=*public/webpack/* " built by webpack
+set wildignore+=*public/assets/* " built by sprockets
+set wildignore+=*public*images/*
+set wildignore+=*public/www/*
+set wildignore+=*coverage/*
+set wildignore+=config.ru
+
+" common folders
+set wildignore+=*/log/*
+set wildignore+=*tmp/*
+set wildignore+=*vendor/*
+
+set suffixes+=.orig
+set suffixes+=*vendor/*
+
+set wildignore+=*\\.git\\*,*\\.hg\\*,*\\.svn\\*,*\\bin\\*,*\\pkg\\*
+
+set wildmode=list:longest
+
+set viewoptions=folds,options,cursor
+set nojoinspaces "don't insert spaces when joining lines
+set splitbelow "new splits go down
+set splitright "new splits go right
+set switchbuf=useopen
+" }}}2
+" {{{2 Vim UI
+colors wombat256mod
+highlight ColorColumn ctermbg=darkgray guibg=darkgray
+set incsearch "show results as we search
+set laststatus=2 "show the status line
+set lazyredraw
+set linespace=0 "apparently vim will sometimes add pixels between lines. Let's not do that
+set listchars=tab:>-,trail:-
+set matchtime=1
+set hlsearch " we like highlightes search
+set number "show line numbers
+set report=0 "Always report number of lines changed
+set ruler "show cursor position
+set scrolloff=999 "keep the cursor centered in the viewport vertically
+set shortmess=alnrAOIFt "shorten messages to avoid 'press a key'
+set showmatch " show matching brackets/etc
+set sidescrolloff=3
+set sidescroll=1
+
+" To make your life easy use `:set guifont=*` to use the picker, then
+" in insert mode issue <c-r><c-r>=&guifont
+set guifont=DejaVu\ Sans\ Mono:h10:cANSI:qDRAFT
+
+" {{{3 statusline
+" {{{ StatusLine colors
+hi StatusLine guibg=gray10
+"Apparently the NotCurrent statusline colors are inverted?
+hi StatusLineNC guifg=black
+hi StatusLineNC guibg=DarkKhaki
+" }}}
+set statusline=%F                          " full path to file
+set statusline+=\ %y                       " current syntax
+set statusline+=\ %m%r%h%w                 " modified, readonly, help, and preview flags (not always visible)
+if has("gui_running")
+    set statusline+=\ %{fugitive#statusline()} " fugitive (GIT) info
+endif
+set statusline+=\ [%{&ff}]                 " fileformat (dos, unix, mac)
+set statusline+=\ [%v,%l%L]                " [current column, current line/total lines]
+set statusline+=\ {%b\ x%B}                " current byte in decimal and hex
+set statusline+=%=                         " split marker, following items are right-aligned
+set statusline+=%{NextTodoItem()}
+" }}}3
+" }}}2
+" {{{2 Text Formatting/Layout
+set completeopt=menuone,preview
+set expandtab
+set formatoptions=rq "insert comment leader and let gq format comments
+set ignorecase
+set smartcase
+set infercase "for completion, not search
+set nowrap
+set shiftround
+
+" {{{ javascript conceal glyphs
+let g:javascript_conceal_function             = "ƒ"
+let g:javascript_conceal_null                 = "ø"
+"let g:javascript_conceal_this                 = ""
+let g:javascript_conceal_this                 = ""
+let g:javascript_conceal_return               = ""
+"let g:javascript_conceal_return               = "⮜"
+let g:javascript_conceal_undefined            = "¿"
+let g:javascript_conceal_NaN                  = "ℕ"
+let g:javascript_conceal_prototype            = "¶"
+let g:javascript_conceal_static               = "•"
+let g:javascript_conceal_super                = "Ω"
+" let g:javascript_conceal_arrow_function       = "🡆🡺 ⮚ ⟹  "
+let g:javascript_conceal_arrow_function       = ""
+" let g:javascript_conceal_arrow_function       = "⟹  "
+"let g:javascript_conceal_noarg_arrow_function = " "
+let g:javascript_conceal_underscore_arrow_function = "_"
+" }}}
+" }}}2
+" }}}
+
+" {{{ Maps
+nmap U :redo<cr>
+
+map <leader>vt :vertical terminal<cr>
+map <leader>ve :tabe $MYVIMRC<cr>
+map <leader>vs :source $MYVIMRC<cr>
+
+vnoremap <leader>urle :!python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.stdin.read().strip()))'<cr>
+vnoremap <leader>urld :!python3 -c 'import sys,urllib.parse;print(urllib.parse.unquote(sys.stdin.read().strip()))'<cr>
+
+map <leader>// *:grep <cword><cr>
+
+map <leader>se :sp stack.txt<cr>
+
+map <leader>exp( ^mb:s/\((\\|,\)\s*/\1\r/g<cr>:s/\s*)/,\r)/<cr>v'b=:nohls<cr>
+map <leader>exp{ ^mb:s/\({\\|,\)\s*/\1\r/g<cr>:s/\s*}/,\r}/<cr>v'b=:nohls<cr>
+map <leader>exp[ ^mb:s/\(\[\\|,\)\s*/\1\r/g<cr>:s/\s*]/,\r\]/<cr>v'b=:nohls<cr>
+
+map <leader>bb :Babel<cr>
+
+" [T]est [R]uby
+map <leader>tr :vertical terminal docker-compose run test rake test %<cr>
+
+map <leader>tj :vertical terminal ++close yarn watchfile %<cr>
+
+" [T]est [O]pen
+map <leader>to :call TestOpen(1)<cr>
+
+" fzf maps
+
+" [F]ind [F]iles
+nmap <localleader>ff :Files<cr>
+
+" [F]ind [C]ommits
+nmap <localleader>fc :Commits<cr>
+
+" [F]ind [B]uffers
+nmap <localleader>fb :Buffers<cr>
+
+" [F]ind [T]ags
+nmap <localleader>ft :Tags<cr>
+
+" [F]ind: [G]rep
+nmap <localleader>fg :Rg<space>
+
+" [G]oto [D]efinition
+nmap <localleader>gd :Tags<space><c-r><c-w><cr>
+
+" [G]oto [U]ses
+nmap <localleader>gu :Rg<space><c-r><c-w><cr>
+
+
+" Make <c-j>/<c-k> work in omnicomplete menu
+" http://vim.wikia.com/wiki/Improve_completion_popup_menu
+inoremap <expr> <c-[> pumvisible()? "\<c-e>" : "\<c-[>"
+inoremap <expr> <cr>  pumvisible()? "\<c-y>" : "\<cr>"
+inoremap <expr> <c-j> pumvisible()? "\<c-n>" : "\<c-j>"
+inoremap <expr> <c-k> pumvisible()? "\<c-p>" : "\<c-k>"
+
+" find git diff marker
+let @d='\(<\||\|=\|>\)\{7}'
+map <leader>/d /<c-r>d<cr>
+
+" Show big fonts for screensharing
+map <leader>bt :set guifont=Ubuntu\ Mono\ 12<cr>
+map <leader>bbt :set guifont=Ubuntu\ Mono\ 16<cr>
+
+" Format XML document
+nmap <leader>xf :silent %!xmllint --format --recover - 2>/dev/null<cr>
+
+" {{{ window resizing
+" shrink window to 66% of current
+nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
+
+" grow window to 150% of current
+nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) + 10)<CR>
+
+" resize window to content +1
+nnoremap <silent> <Leader>= :let @a='z'.(line('$')+1).'<c-v><cr>'<cr>@a<c-b>
+" }}}
+
+" Json formatting (on python equipped machine,
+" try 'python' if you have Python>=2.6 but not Python3
+map <leader>json :%!python3 -m json.tool<cr>
+
+" Python maps
+map <leader>pr :!python %<cr>
+map <leader>p3 :!python3 %<cr>
+map <leader>pdt :!python -m doctest %<cr> " run doctests
+map <leader>pt :Pytest file<cr> " run unit tests in this file
+
+" Toggle folds with space, sanely
+nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
+vnoremap <Space> zf
+
+" Reindent whole file
+map g= gg=G`'
+
+" clear search highlight
+nmap <c-space> :nohls<cr>
+" same mapping linux terminals
+nmap <c-@> :nohls<cr>
+
+" }}}
+
+" {{{ Autocommands
+au InsertEnter * hi StatusLine guibg=gray10 guifg=OrangeRed
+au InsertLeave * hi statusline guibg=gray10 ctermfg=8 guifg=orange ctermbg=15
+
+augroup ALEloclistcloser "{{{
+    autocmd!
+    autocmd QuitPre * if empty(&bt) | cclose | endif
+    autocmd BufLeave * if empty(&bt) | cclose | endif
+augroup END "}}}
+augroup BgHighlight "{{{
+    autocmd!
+    autocmd WinEnter * set cul
+    autocmd WinLeave * set nocul
+augroup END "}}}
+augroup filetypes "{{{
+    autocmd!
+    "au Filetype javascript setlocal tabstop=3 softtabstop=3 shiftwidth=3 smarttab expandtab smartindent
+    "au Filetype javascript setlocal tabstop=3 shiftwidth=3 smarttab noexpandtab smartindent
+    au Filetype json setlocal tabstop=3 softtabstop=3 shiftwidth=3 smarttab expandtab smartindent foldmethod=syntax
+    au Filetype scss setlocal nolist expandtab commentstring=/*\ %s\ */
+    au Filetype arduino setlocal sw=2 sts=2 expandtab smarttab ts=2 foldmethod=marker foldmarker={,}
+    au Filetype cpp setlocal sw=2 sts=2 expandtab smarttab
+augroup END "}}}
+augroup python "{{{
+    autocmd!
+    au BufEnter,BufWinEnter *.py colors wombat256mod
+    au BufEnter *.html setlocal foldmethod=syntax
+    au BufEnter *.pde setlocal expandtab
+    au Filetype python BracelessEnable +fold +indent +highlight
+    " nosmartindent to avoid annoying unindenting comments
+    au Filetype python setlocal tabstop=4 softtabstop=4 shiftwidth=4 colorcolumn=80 textwidth=80 smarttab expandtab nosmartindent list
+    "au BufWritePre *.py :!python -m doctest %
+    au BufEnter,BufRead *.django.html setlocal filetype=htmldjango commentstring={#\ %s\ #}
+augroup END "}}}
+augroup ruby "{{{
+    autocmd!
+    "au BufEnter,BufWinEnter *.rb colors skyhawk
+augroup END "}}}
+augroup javascript "{{{
+    autocmd!
+    au BufRead,BufEnter,BufNewFile *.js setlocal filetype=javascript.jsx foldmethod=syntax
+    au BufRead,BufEnter,BufNewFile *.jsx setlocal filetype=javascript.jsx foldmethod=syntax
+
+    au BufWritePre *.js :ALEFix
+
+    "au FileType javascript.jsx colors fahrenheit
+    " Highlight ES6 template strings
+    au FileType javascript hi link javaScriptTemplateDelim String
+    au FileType javascript hi link javaScriptTemplateVar Text
+    au FileType javascript hi link javaScriptTemplateString String
+
+    " Set conceal highlighting
+    highlight Conceal ctermfg=red ctermbg=234 guifg=red guibg=#242424
+
+    syntax match Describe "^describe" conceal cchar=Đ
+    syntax match Const "^\s*const " conceal cchar=Ꞓ
+    set conceallevel=0
+augroup END "}}}
+augroup c "{{{
+    autocmd!
+    "au BufEnter,BufWinEnter colors orbital
+    au FileType c set sw=2 ts=2 et fdm=syntax
+augroup END "}}}
+augroup yaml "{{{
+    autocmd!
+    au FileType yaml BracelessEnable +fold +highlight
+    au FileType yaml setlocal sw=2 foldmethod=indent
+augroup END "}}}
+augroup xml "{{{
+    autocmd!
+    au BufRead,BufNewFile *.xml setlocal filetype=xml 
+    au Filetype xml let g:xml_syntax_folding = 1
+    au Filetype xml syntax on
+    au Filetype xml setlocal shiftwidth=2 softtabstop=2 foldmethod=syntax
+augroup END "}}}
+augroup json "{{{
+    autocmd!
+    au BufRead,BufNewFile *.json set filetype=json
+augroup END "}}}
+augroup jscad "{{{
+    autocmd!
+    au BufRead,BufNewFile *.scad set filetype=javascript
+augroup END "}}}
+augroup hiringthing "{{{
+    autocmd!
+    au Filetype ruby set noexpandtab nolist tabstop=2 shiftwidth=2 fdm=syntax fdl=9 colorcolumn=100 textwidth=100
+    au Filetype javascript     set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=9
+    au Filetype javascript.jsx set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=9
+    au Filetype scss set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=9
+augroup END "}}}
+augroup autoread "{{{
+    " https://stackoverflow.com/questions/2490227/how-does-vims-autoread-work
+    autocmd!
+    au CursorHold,CursorHoldI * checktime
+    au FocusGained,BufEnter * checktime
+augroup END "}}}
+" {{{2 Terminal mode switch
+" Adapted from https://github.com/vim/vim/issues/2487
+augroup Terminal
+    au!
+    " 20190621 BufWinEnter doesn't work (buftype not available yet) and I can't get any other autocmds to work either
+    " Have to cope with set_terminal only firing as I move back to a terminal AFTER creation
+    au BufEnter    * if &l:buftype ==# 'terminal' | call s:set_terminal() | endif
+augroup END
+
+fu! s:set_terminal() abort
+    setlocal nonumber
+endfu
+" Terminal mode switch }}}2
+" Autocommands }}}
+
+" {{{ Functions
+" {{{2 JS testfile
+function! TestOpen(create_as_necessary)
+    let l:testdir = expand('%:p:h') . '/test/'
+    let l:testfilename=l:testdir . expand('%:t:r') . '.spec.js'
+    echo (a:create_as_necessary)
+    if (a:create_as_necessary)
+        call system('mkdir -p ' . l:testdir)
+    endif
+    if filereadable(l:testfilename) || a:create_as_necessary
+        execute 'vs ' . l:testfilename
+        execute 'vertical terminal ++close yarn watchfile ' . l:testfilename
+    else
+        echo l:testfilename . " is unavailable."
+    endif
+endfunction
+" }}}2
+" {{{2 CloseHiddenBuffers
+function! CloseHiddenBuffers()
+    " figure out which buffers are visible in any tab
+    let visible = {}
+    for t in range(1, tabpagenr('$'))
+        for b in tabpagebuflist(t)
+            let visible[b] = 1
+        endfor
+    endfor
+    " close any buffer that's loaded and not visible
+    for b in range(1, bufnr('$'))
+        if bufloaded(b) && !has_key(visible, b)
+            exe 'bd! ' . b
+        endif
+    endfor
+endfun"
+" }}}2
+" {{{2 TodoStack
+function! ReadTodoStack()
+    let v:errmsg = ""
+    let l:todos = readfile('stack.txt')
+    if v:errmsg != ""
+        return ["Could not open 'stack.txt'"]
+    else
+        return l:todos
+    endif
+endfunction
+
+function! NextTodoItem()
+    silent! return ReadTodoStack()[0][:59]
+endfunction
+
+function! WriteTodoStack(todos)
+    if writefile(a:todos, 'stack.txt')
+        echomsg "Could not write TODO stack"
+    endif
+endfunction
+
+function! PopTodoStack()
+    " Write back all todos but the first
+    call WriteTodoStack(ReadTodoStack()[1:])
+endfunction
+
+function! PushTodoStack(new_todo)
+    let l:todos = ReadTodoStack()
+    call insert(l:todos, a:new_todo)
+    call WriteTodoStack(l:todos)
+endfunction
+
+function! PushTodoStackNext(new_todo)
+    let l:todos = ReadTodoStack()
+    call insert(l:todos, a:new_todo, 1)
+    call WriteTodoStack(l:todos)
+endfunction
+
+function! InsertTodoStack(new_todo)
+    let l:todos = ReadTodoStack()
+    call add(l:todos, a:new_todo)
+    call WriteTodoStack(l:todos)
+endfunction
+" }}}2
+" {{{ TagSelection
+" These mappings and TagSelection function will allow you to place
+" an XML tag around either the current word, or the current selected
+" text.
+" If the visual select is on a single line, the tag is wrapped
+" around the text <this>way</this>. If the visual select
+" extends over multiple lines, the tag is wrapped around the text
+" <this>
+" way
+" </this>
+"
+" When you are prompted for the tag name, you can enter:
+" Tag name? p class="classname" attri="bute"
+" The select is wrapped with:
+" <p class="classname" attri="bute">
+" Your selection
+" </p>
+" Notice the attributes have been stripped from the closing tag.
+
+noremap <leader>t <esc>:call TagSelection()<cr>
+
+function! TagSelection()
+    let tag = input("Tag name (include attributes)? ")
+    if strlen(tag) == 0
+        return
+    endif
+
+    " Save
+    let saveB = @b
+    " <C-R> seems to automatically reindent the line for some filetypes
+    " this will disable it until we have applied our changes
+    let saveIndent = &indentexpr
+    let curl = line(".")
+    let curc = col(".")
+    let &indentexpr = ''
+
+    " If the visual selection is over multiple lines, then place the
+    " data between the tags on newlines:
+    "   <tag>
+    "   data
+    "   </tag>
+    let newline = ''
+    if getline("'>") != getline("'<")
+        let newline = "\n"
+        let curl = line("'>")
+    endif
+
+    " Strip off all but the first word in the tag for the end tag
+    let @b = newline . substitute(tag, '^[ \t"]*\(\<\S*\>\).*', '<\/\1>\e', "")
+    let curc = curc + strlen(@b)
+    exec "normal `>a\<C-R>b"
+    let @b = substitute(tag, '^[ \t"]*\(\<.*\)', '<\1>\e', "") . newline
+    let curc = curc + strlen(@b)
+    exec "normal `<i\<C-R>b"
+
+    " Now format the area
+    exec "normal `<V'>j="
+
+    " Restore
+    let @b = saveB
+    let &indentexpr = saveIndent
+    call cursor(curl, curc)
+endfunction
+" TagSelection }}}
+" Terminal scrolling {{{
+function! EnterNormalMode()
+    if &buftype == 'terminal' && mode('') == 't'
+        call feedkeys("\<c-w>N")
+        call feedkeys("\<c-y>")
+    endif
+endfunction
+
+tmap <silent> <ScrollWheelUp> <c-w>:call EnterNormalMode()<CR>
+" }}}
+" Functions }}}
+"
+" {{{ Commands
+" {{{2 Console (Rails)
+" Open a Rails console in a new window
+:command! Console <mods> terminal ++close docker-compose run web bundle exec rails console
+" }}}2
+" {{{2 TodoStack
+:command! EditTodoStack <mods> split stack.txt
+:command! -nargs=1 TodoNow call PushTodoStack(<f-args>)
+:command! -nargs=1 TodoNext call PushTodoStackNext(<f-args>)
+:command! -nargs=0 TodoDone call PopTodoStack(<f-args>)
+:command! -nargs=1 TodoLater call InsertTodoStack(<f-args>)
+" }}}2
+" {{{2
+" Hashrocket fixup
+:command! -range=% ConvertHashrocket silent execute <line1>.','.<line2>.'s/:\(\w\+\) => \(.\{-}\),\?/\1: \2/g'
+" }}}2
+" {{{2 ReadCurl
+" Replace the contents of the buffer with output from a curl request
+:command! -nargs=+ ReadCurl %!curl <args> 2>/dev/null
+" }}}2
+" {{{2 ReadTestFeed
+" Replace the contents of the buffer with the HT test feed by passed feed name e.g. 'nexstar'
+:command! -nargs=+ ReadTestFeed %!curl http://api.hiringthing.test/api/all_jobs/<args> 2>/dev/null
+" }}}2
+" {{{2 ReadProdFeed
+" Replace the contents of the buffer with the HT test feed by passed feed name e.g. 'nexstar'
+:command! -nargs=+ ReadProdFeed %!curl http://api.applicant-tracking.com/api/all_jobs/<args> 2>/dev/null
+" }}}2
+" Commands }}}
+
+" vim: foldmethod=marker foldmarker={{{,}}} expandtab shiftwidth=4 commentstring="%s
