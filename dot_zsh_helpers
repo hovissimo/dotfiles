@@ -1,0 +1,19 @@
+git_current_branch () {                                                  
+        local ref                                                        
+        ref=$(git symbolic-ref --quiet HEAD 2> /dev/null)                
+        local ret=$?                                                     
+        if [[ $ret != 0 ]]                                               
+        then                                                             
+                [[ $ret == 128 ]] && return                              
+                ref=$(git rev-parse --short HEAD 2> /dev/null)  || return
+        fi                                                               
+        echo ${ref#refs/heads/}                                          
+}                                                                        
+                                                                         
+_pickbranch () {                                                         
+        branch=$(git branch | grep -v $(git_current_branch) | fzf)       
+        LBUFFER=${LBUFFER}${branch}                                      
+        # zle -U $(git branch | grep -v $(git_current_branch) | fzf)     
+}                                                                        
+zle -N _pickbranch                                                       
+bindkey '^B' _pickbranch       

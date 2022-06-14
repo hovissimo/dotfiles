@@ -5,3 +5,7 @@ antigen bundle arialdomartini/oh-my-git
 antigen theme arialdomartini/oh-my-git-themes arialdo-granzestyle
 
 antigen apply
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+source ~/.zsh_helpers
