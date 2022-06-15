@@ -38,6 +38,7 @@ Plug 'airblade/vim-gitgutter' " Git diff info in the left gutter
 " Handy Commands {{{
 Plug 'godlygeek/tabular'
 Plug 'chiedo/vim-sort-blocks-by'
+Plug 'habamax/vim-sendtoterm'
 " }}}
 
 " Motion enhancers {{{
@@ -381,6 +382,12 @@ inoremap <expr> <cr>  pumvisible()? "\<c-y>" : "\<cr>"
 inoremap <expr> <c-j> pumvisible()? "\<c-n>" : "\<c-j>"
 inoremap <expr> <c-k> pumvisible()? "\<c-p>" : "\<c-k>"
 
+" vim-sendtoterm
+xmap <leader>r  <Plug>(SendToTerm)
+nmap <leader>r  <Plug>(SendToTerm)
+omap <leader>r  <Plug>(SendToTerm)
+nmap <leader>rr <Plug>(SendToTermLine)
+
 " find git diff marker
 let @d='\(<\||\|=\|>\)\{7}'
 map <leader>/d /<c-r>d<cr>
@@ -536,6 +543,11 @@ fu! s:set_terminal() abort
     setlocal nonumber
 endfu
 " Terminal mode switch }}}2
+" Auto-create directories on save {{{2
+augroup dirwrite
+  autocmd BufWritePre * :silent !mkdir -p %:p:h
+augroup END
+" Auto-create directories on save }}}2
 " Autocommands }}}
 
 " {{{ Functions
