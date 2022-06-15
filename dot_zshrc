@@ -1,4 +1,5 @@
 export PATH=$HOME/.local/bin:$PATH
+export EDITOR=vim
 
 source "$HOME/.antigen/antigen.zsh"
 
@@ -17,3 +18,4 @@ source ~/.hiringthing_functions
 eval "$(rbenv init -)"
 
 alias dc=docker-compose
+
