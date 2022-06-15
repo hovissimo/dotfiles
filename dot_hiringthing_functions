@@ -1,0 +1,57 @@
+railstest() {
+        # Run a rails test file
+        #
+        # `railstest some_file_test` to run the tests in test/**/some_file_test.rb
+        # `railstest some_file_test:33` to run just the test on/around line 33 of that file
+        #
+        # If there is more than one some_file_test.rb in the project, they will all be tested.
+        # You can be more specific by including part of the path:
+        # `railstest unit/some_file_test`
+        test_command="docker-compose exec test bin/rails test"
+
+        parts=("${(@s/:/)${1}}")
+        # If there's a colon in the first arg, assume this is the rails 5 line number syntax
+
+        if [ $#parts = "1" ]; then
+                # Original script.
+                # First argument is a filename pattern, match all these files and pass them to be tested
+                # The remainder of the arguments should be passed straight through
+
+                to_run="${test_command} test/**/$1.rb ${@:2}"
+                echo " > ${to_run}"
+                zsh -c $to_run
+        else
+                # New Rails5 version to support line number specification
+                # First argument is a filename pattern and optionally a line number separated by a colon.
+                # We split and join to call rails test correctly
+                test_filename_pattern=$parts[1]
+                line_number_to_test=$parts[2]
+
+                # I don't think this will work if you actually match multiple files
+                matched_files=(test/**/$test_filename_pattern.rb)
+                if [ $#matched_files -gt 1 ]; then echo "Matched $#matched_files files but this only really works with when 1 file is matched. This will likely fail"; fi
+
+                to_run="${test_command} ${matched_files}:$line_number_to_test"
+                echo " > ${to_run}"
+                zsh -c $to_run
+        fi
+}
+
+htmysql() {
+        # Open a mysql client to your local dev database
+        mysql --host 127.0.0.1 --port 7306 --user root --password=hiringthing careers
+}
+
+dcrestart() {
+        #  Quickly restart your docker stack
+        docker-compose kill;
+        docker-compose down;
+        docker-compose pull;
+        docker-compose up -d web resque test;
+}
+
+qadeploy() {
+        # invoke like `qadeploy stage3` to deploy your current branch to stage3 (the version on Github will be deployed!)
+        echo "ssh bastion-stage qa-deploy $1 $(git rev-parse --abbrev-ref HEAD)"
+        ssh bastion-stage qa-deploy $1 $(git rev-parse --abbrev-ref HEAD)
+}

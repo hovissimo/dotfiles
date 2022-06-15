@@ -11,6 +11,9 @@ antigen apply
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 source ~/.zsh_helpers
+source ~/.hiringthing_functions
 
 # Start up rbenv for Ruby
 eval "$(rbenv init -)"
+
+alias dc=docker-compose
