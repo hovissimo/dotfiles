@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+
+LOGFILE='/home/hovis/log/getHTDockerImages.log'
+set -e
+
+{
+  echo "
+  Getting updated docker images $(date)";
+
+  # Read .env from dev/ht
+  export $(cat /home/hovis/dev/ht/.env | xargs)
+
+  # Pull updated images serially (which may be more reliable)
+  /home/hovis/.local/bin/docker-compose -f /home/hovis/dev/ht/docker-compose.yml pull --no-parallel;
+  echo "Finished docker images $(date)";
+} >> $LOGFILE 2>> $LOGFILE
