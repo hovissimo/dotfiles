@@ -161,6 +161,9 @@ let g:javascript_plugin_flow = 0
 " }}}
 
 " {{{ Set
+" {{{2 FZF
+let g:fzf_layout = { 'down': '30%' }
+" }}}2 FZF
 " {{{2 grepprg
 if executable("rg")
     set grepprg=rg\ --vimgrep\ --no-heading\ -S
@@ -332,6 +335,8 @@ map <leader>vs :source $MYVIMRC<cr>
 
 vnoremap <leader>urle :!python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.stdin.read().strip()))'<cr>
 vnoremap <leader>urld :!python3 -c 'import sys,urllib.parse;print(urllib.parse.unquote(sys.stdin.read().strip()))'<cr>
+
+nmap <leader>vc :vertical topleft copen<cr>:vert resize 30<cr>
 
 map <leader>// *:grep <cword><cr>
 
