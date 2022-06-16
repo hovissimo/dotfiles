@@ -7,6 +7,7 @@
         amend = commit --amend
         br = branch
         ci = commit
+        cleanup = !git branch --merged HEAD | grep  -v '\\*\\|$(git main-branch)' | xargs -r -n 1 git branch -d
         co = checkout
         diffc = diff --cached
         grep = grep -Ii # i: ignorecase, I: don't search binary files
@@ -16,14 +17,18 @@
         local-branches = !git branch -vv | cut -c 3- | awk '$3 !~/\\[/ { print $1 }' # Show me branches that are local but not remote (on Github)
         ls = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit # A really pretty short log format with branch lines
         ls-conflicts = diff --name-only --diff-filter=U
-        pushf = push --force-with-lease # see `git help push`, tl;dr is only force the push if you are the last author on the remote branch
-        st = status
-        pushu = push --set-upstream origin HEAD
-
+        main-branch = !git symbolic-ref refs/remotes/origin/HEAD | cut -d'/' -f4
         mt = mergetool
-        ri = rebase --interactive
+        pushf = push --force-with-lease # see `git help push`, tl;dr is only force the push if you are the last author on the remote branch
+        pushu = push --set-upstream origin HEAD
+        px = "!~/bin/git-pickaxe"
         rc = rebase --continue
+        ri = rebase --interactive
+        rim = "!git rebase --interactive $(git main-branch) --autosquash"
+        st = status
 [core]
-        pager = less -x1,5 # show smaller tabs in git diffs
+    excludesfile = .gitignore.local
+    #pager = diff-so-fancy | less --tabs=2 -RFX
+    pager = diff-so-fancy | less -RFX
 [pager]
         stash = false # don't steal the screen when showing the stash list
