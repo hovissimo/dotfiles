@@ -6,7 +6,8 @@
 [alias]
         amend = commit --amend
         br = branch
-        ci = commit
+				# commit --verbose flag adds diff when editing commit message
+        ci = commit --verbose 
         cleanup = !git branch --merged HEAD | grep  -v '\\*\\|$(git main-branch)' | xargs -r -n 1 git branch -d
         co = checkout
         diffc = diff --cached
