@@ -23,6 +23,16 @@ Plug 'haya14busa/incsearch.vim' " incsearch for all results and all modes
 Plug 'ludovicchabant/vim-gutentags' " Tag manager
 Plug 'triglav/vim-visual-increment' " c-v then c-a to auto-increment numbers
 
+" Deoplete auto-completion
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
+let g:deoplete#enable_at_startup = 1
+
 Plug 'majutsushi/tagbar' " Tag sidebar
 
 " Shell utility integrations {{{
@@ -30,6 +40,7 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep' " :Rg
+Plug 'jesseleite/vim-agriculture' " Enhances fzf.vim with better quoting
 Plug 'tpope/vim-fugitive' " Git integration for Vim
 Plug 'tpope/vim-rhubarb' " Github (hub) integration for Vim
 Plug 'airblade/vim-gitgutter' " Git diff info in the left gutter
@@ -127,12 +138,12 @@ let g:ale_fixers = {
             \ 'scss': ['stylelint'],
             \}
 
-let g:ale_linters = {
-            \ 'javascript': ['eslint'],
-            \ 'javascript.jsx': ['eslint'],
-            \ 'css': ['stylelint'],
-            \ 'ruby': ['rubocop', 'brakeman'],
-            \}
+" let g:ale_linters = {
+"             \ 'javascript': ['eslint', 'tsserver', 'cspell'],
+"             \ 'javascript.jsx': ['eslint', 'tsserver', 'cspell'],
+"             \ 'css': ['stylelint'],
+"             \ 'ruby': ['rubocop', 'brakeman'],
+"             \}
 
 let g:ale_open_list='never'
 let g:ale_fix_on_save=1
@@ -186,7 +197,6 @@ set nocompatible
 set background=dark
 set fileencoding=utf-8
 set encoding=utf-8
-set foldlevel=9
 syntax on
 set history=9999
 set timeoutlen=500 "ms timeout for key sequences to complete
@@ -327,6 +337,10 @@ let g:javascript_conceal_underscore_arrow_function = "_"
 " }}}
 
 " {{{ Maps
+" {{{2 :term
+tnoremap <esc><esc> <c-\><c-n>
+" }}}2
+
 nmap U :redo<cr>
 
 map <leader>vt :vertical terminal<cr>
@@ -378,6 +392,14 @@ nmap <localleader>gd :Tags<space><c-r><c-w><cr>
 
 " [G]oto [U]ses
 nmap <localleader>gu :Rg<space><c-r><c-w><cr>
+
+" [G]rep in [F]rontend
+nmap <localleader>ggf :RgRaw<space><c-r><c-w> -- frontend<cr>
+
+" agriculture maps
+nmap <Leader>/ <Plug>RgRawSearch
+vmap <Leader>/ <Plug>RgRawVisualSelection
+nmap <Leader>* <Plug>RgRawWordUnderCursor<cr>
 
 
 " Make <c-j>/<c-k> work in omnicomplete menu
