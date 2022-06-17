@@ -4,13 +4,12 @@ LOGFILE='/home/hovis/log/getHTDockerImages.log'
 set -e
 
 {
-  echo "
-  Getting updated docker images $(date)";
+	echo "$(date): Getting updated docker images";
 
-  # Read .env from dev/ht
-  export $(cat /home/hovis/dev/ht/.env | xargs)
+	# Read .env from dev/ht
+	export $(cat /home/hovis/dev/ht/.env | xargs)
 
-  # Pull updated images serially (which may be more reliable)
-  /home/hovis/.local/bin/docker-compose -f /home/hovis/dev/ht/docker-compose.yml pull --no-parallel;
-  echo "Finished docker images $(date)";
+	# Pull updated images serially (which may be more reliable)
+	/home/hovis/.local/bin/docker-compose -f /home/hovis/dev/ht/docker-compose.yml pull --no-parallel;
+	echo "$(date): Finished docker images";
 } >> $LOGFILE 2>> $LOGFILE
