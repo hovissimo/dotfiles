@@ -4,7 +4,7 @@
 [push]
         default = simple
 [alias]
-        amend = commit --amend
+        amend = commit --amend --no-edit
         br = branch
 				# commit --verbose flag adds diff when editing commit message
         ci = commit --verbose 
@@ -33,3 +33,9 @@
     pager = diff-so-fancy | less -RFX
 [pager]
         stash = false # don't steal the screen when showing the stash list
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
