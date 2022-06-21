@@ -24,7 +24,7 @@
         pushu = push --set-upstream origin HEAD
         px = "!~/bin/git-pickaxe"
         rc = rebase --continue
-        ri = rebase --interactive
+        ri = rebase --interactive --autosquash
         rim = "!git rebase --interactive $(git main-branch) --autosquash"
         st = status
 [core]
