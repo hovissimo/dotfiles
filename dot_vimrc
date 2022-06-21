@@ -76,6 +76,8 @@ Plug 'sunaku/vim-ruby-minitest'
 Plug 'nikvdp/ejs-syntax'
 Plug 'vim-scripts/vim-babel'
 Plug 'mattn/webapi-vim' "dependency for vim-babel (json decoding)
+
+Plug 'mvolkmann/vim-js-arrow-function' " <leader>af to switch between function and fat arrow
 " }}}
 
 " Visual {{{
@@ -363,7 +365,7 @@ map <leader>to :call TestOpen(1)<cr>
 " fzf maps
 
 " [F]ind [F]iles
-nmap <localleader>ff :Files<cr>
+nmap <localleader>ff :GFiles<cr>
 
 " [F]ind [C]ommits
 nmap <localleader>fc :Commits<cr>
