@@ -23,16 +23,6 @@ Plug 'haya14busa/incsearch.vim' " incsearch for all results and all modes
 Plug 'ludovicchabant/vim-gutentags' " Tag manager
 Plug 'triglav/vim-visual-increment' " c-v then c-a to auto-increment numbers
 
-" Deoplete auto-completion
-if has('nvim')
-  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-  Plug 'Shougo/deoplete.nvim'
-  Plug 'roxma/nvim-yarp'
-  Plug 'roxma/vim-hug-neovim-rpc'
-endif
-let g:deoplete#enable_at_startup = 1
-
 Plug 'majutsushi/tagbar' " Tag sidebar
 
 " Shell utility integrations {{{
@@ -160,13 +150,13 @@ let g:diminactive_use_colorcolumn = 0
 let g:diminactive_use_syntax = 1
 " }}}
 " {{{ Ultisnips
-"let g:UltiSnipsSnippetDirectories = $HOME.'/.vim/UltiSnips'
+let g:UltiSnipsSnippetsDir = '~/.vim/UltiSnips'
 let g:UltiSnipsSnippetDirectories=["UltiSnips"] " Search rtp dirs for snippets in UltiSnips dirs.
 nmap <leader>ue :UltiSnipsEdit<cr>
 let g:UltiSnipsEditSplit="horizontal"
 " }}}
 " {{{ javascript
-let g:javascript_plugin_jsdoc = 0
+let g:javascript_plugin_jsdoc = 1
 let g:javascript_plugin_flow = 0
 " }}}
 " }}}
