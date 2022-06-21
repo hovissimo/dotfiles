@@ -10,7 +10,7 @@ antigen theme arialdomartini/oh-my-git-themes arialdo-granzestyle
 
 antigen apply
 
-zstyle :omz:plugins:ssh-agent identities id_ed25519 id_hiringthing_20220614
+zstyle :omz:plugins:ssh-agent identities id_ed25519 id_hiringthing_20220614 id_github_20220617
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
