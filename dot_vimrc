@@ -124,7 +124,7 @@ let g:rg_derive_root=1
 let g:ale_fixers = {
             \ 'javascript': ['prettier', 'eslint'],
             \ 'javascript.jsx': ['prettier', 'eslint'],
-            \ 'ruby': ['rubocop'],
+            \ 'ruby': ['rubocop', 'prettier'],
             \ 'cpp': ['clang-format'],
             \ 'css': ['prettier'],
             \ 'scss': ['stylelint'],
@@ -255,7 +255,7 @@ set splitright "new splits go right
 set switchbuf=useopen
 " }}}2
 " {{{2 Vim UI
-colors wombat256mod
+colors gruvbox
 highlight ColorColumn ctermbg=darkgray guibg=darkgray
 set incsearch "show results as we search
 set laststatus=2 "show the status line
