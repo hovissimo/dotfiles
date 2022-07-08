@@ -1,3 +1,0 @@
-snippet foo
-bar
-endsnippet
