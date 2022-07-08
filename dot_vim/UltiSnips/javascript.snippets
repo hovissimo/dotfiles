@@ -1,3 +1,40 @@
-snippet useState "React.useState hook" b
-const [$1, set${1/\w+/\u$0/g}] = React.useState($2)
+snippet useState "useState hook" b
+const [$1, set${1/\w+/\u$0/g}] = useState($2)
+endsnippet
+
+snippet useEffect "useEffect hook" b
+useEffect(() => {
+	$1
+}, [$2])
+$0
+endsnippet
+
+snippet import "import { } from ''" b
+import { $1 } from "$2";
+$0
+endsnippet
+
+snippet describe "describe spec block" b
+describe("$1", function() {
+	$0
+});
+endsnippet
+
+snippet it "it spec block" b
+it("$1", async function() {
+	$0
+});
+endsnippet
+
+snippet newspec "New Mocha spec test" b
+import { expect } from "chai";
+import { shallow } from "enzyme";
+
+import { $1 } from "./$1";
+
+describe("$1", function() {
+	it("$2", async function() {
+		$0
+	});
+});
 endsnippet
