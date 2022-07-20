@@ -284,13 +284,13 @@ hi StatusLine guibg=gray10
 hi StatusLineNC guifg=black
 hi StatusLineNC guibg=DarkKhaki
 " }}}
-set statusline=%F                          " full path to file
-set statusline+=\ %y                       " current syntax
-set statusline+=\ %m%r%h%w                 " modified, readonly, help, and preview flags (not always visible)
+set statusline=%f                          " relative path to file
+" set statusline+=\ %y                       " current syntax
+" set statusline+=\ %m%r%h%w                 " modified, readonly, help, and preview flags (not always visible)
 if has("gui_running")
     set statusline+=\ %{fugitive#statusline()} " fugitive (GIT) info
 endif
-set statusline+=\ [%{&ff}]                 " fileformat (dos, unix, mac)
+" set statusline+=\ [%{&ff}]                 " fileformat (dos, unix, mac)
 set statusline+=\ [%v,%l%L]                " [current column, current line/total lines]
 set statusline+=\ {%b\ x%B}                " current byte in decimal and hex
 set statusline+=%=                         " split marker, following items are right-aligned
@@ -729,7 +729,7 @@ tmap <silent> <ScrollWheelUp> <c-w>:call EnterNormalMode()<CR>
 :command! Console <mods> terminal ++close docker-compose run web bundle exec rails console
 " }}}2
 " {{{2 TodoStack
-:command! EditTodoStack <mods> split stack.txt
+:command! TodoEdit <mods> split stack.txt
 :command! -nargs=1 TodoNow call PushTodoStack(<f-args>)
 :command! -nargs=1 TodoNext call PushTodoStackNext(<f-args>)
 :command! -nargs=0 TodoDone call PopTodoStack(<f-args>)
