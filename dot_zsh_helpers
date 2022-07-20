@@ -17,3 +17,13 @@ _pickbranch () {
 }                                                                        
 zle -N _pickbranch                                                       
 bindkey '^B' _pickbranch       
+
+pushwip() {
+				git ci -am "DO NOT MERGE WIP BRANCH"
+				git push
+}
+
+pullwip() {
+	git reset --hard origin/$(git_current_branch)
+	git reset HEAD^
+}
