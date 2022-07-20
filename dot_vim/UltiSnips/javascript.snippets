@@ -26,6 +26,16 @@ it("$1", async function() {
 });
 endsnippet
 
+snippet newjest "New Jest test" b
+import { $1 } from "./$1.js";
+
+describe("$1", function () {
+	it("$2", async function () {
+		$0
+	});
+});
+endsnippet
+
 snippet newspec "New Mocha spec test" b
 import { expect } from "chai";
 import { shallow } from "enzyme";
@@ -34,7 +44,41 @@ import { $1 } from "./$1";
 
 describe("$1", function() {
 	it("$2", async function() {
+		const wrapper = shallow(<$1 />);
 		$0
 	});
 });
+endsnippet
+
+snippet newstory "New Storybook story" b
+import { action } from "@storybook/addon-actions";
+
+// const disabledControl = { table: { disable: true } };
+
+export default {
+	title: "$1",
+	argTypes: {
+		// size: {
+		// 	options: ["medium", "small"],
+		// 	contol: "select",
+		// },
+		// className: disabledControl,
+	},
+};
+
+const Template = (args) => {
+	$0;
+};
+endsnippet
+
+snippet afterEach "afterEach spec block" b
+afterEach(function() {
+	$0
+})
+endsnippet
+
+snippet beforeEach "beforeEach spec block" b
+beforeEach(function() {
+	$0
+})
 endsnippet
