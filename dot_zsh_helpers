@@ -27,3 +27,7 @@ pullwip() {
 	git reset --hard origin/$(git_current_branch)
 	git reset HEAD^
 }
+
+dcl() {
+	docker-compose -f docker-compose.local.yml $@
+}
