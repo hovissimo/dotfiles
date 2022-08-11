@@ -22,3 +22,5 @@ eval "$(rbenv init -)"
 
 alias dc=docker-compose
 
+export GITHUB_ACCESS_TOKEN=$(cat $HOME/.gh_access_token)
+
