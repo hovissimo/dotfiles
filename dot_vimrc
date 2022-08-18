@@ -207,8 +207,17 @@ set smartindent
 filetype indent plugin on
 
 set backupdir=~/.vim/backup// " where to put backup files
+if !isdirectory(&backupdir)
+    call mkdir(&backupdir, "p")
+endif
 set undodir=~/.vim/undo// " where to put undo files
+if !isdirectory(&undodir)
+    call mkdir(&undodir, "p")
+endif
 set directory=~/.vim/temp// " directory to place swap files in
+if !isdirectory(&directory)
+    call mkdir(&directory, "p")
+endif
 
 set fileformats=unix,dos,mac
 
