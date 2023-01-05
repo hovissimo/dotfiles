@@ -1,8 +1,28 @@
+#! /usr/bin/zsh
+
+RESTORE=$(echo -en '\001\033[0m\002')
+RED=$(echo -en '\001\033[00;31m\002')
+GREEN=$(echo -en '\001\033[00;32m\002')
+YELLOW=$(echo -en '\001\033[00;33m\002')
+BLUE=$(echo -en '\001\033[00;34m\002')
+MAGENTA=$(echo -en '\001\033[00;35m\002')
+PURPLE=$(echo -en '\001\033[00;35m\002')
+CYAN=$(echo -en '\001\033[00;36m\002')
+LIGHTGRAY=$(echo -en '\001\033[00;37m\002')
+LRED=$(echo -en '\001\033[01;31m\002')
+LGREEN=$(echo -en '\001\033[01;32m\002')
+LYELLOW=$(echo -en '\001\033[01;33m\002')
+LBLUE=$(echo -en '\001\033[01;34m\002')
+LMAGENTA=$(echo -en '\001\033[01;35m\002')
+LPURPLE=$(echo -en '\001\033[01;35m\002')
+LCYAN=$(echo -en '\001\033[01;36m\002')
+WHITE=$(echo -en '\001\033[01;37m\002')
+
 railstest() {
         # Run a rails test file
         #
-        # `railstest some_file_test` to run the tests in test/**/some_file_test.rb
-        # `railstest some_file_test:33` to run just the test on/around line 33 of that file
+        # `railstest some_file_test.rb` to run the tests in test/**/some_file_test.rb
+        # `railstest some_file_test.rb:33` to run just the test on/around line 33 of that file
         #
         # If there is more than one some_file_test.rb in the project, they will all be tested.
         # You can be more specific by including part of the path:
@@ -16,9 +36,17 @@ railstest() {
                 # Original script.
                 # First argument is a filename pattern, match all these files and pass them to be tested
                 # The remainder of the arguments should be passed straight through
+								test_filename_pattern="test/**/$1"
 
-                to_run="${test_command} test/**/$1.rb ${@:2}"
-                echo " > ${to_run}"
+                matched_files=($~test_filename_pattern)
+                echo "\n${YELLOW}Files:${RESTORE}"
+                (IFS=$'\n'; printf %s "${matched_files[*]}") # print files with newlines again
+                echo "\n" # Two more newlines
+
+                to_run="${test_command} test/**/$1 ${@:2}"
+                echo "${YELLOW}Test command:${RESTORE}"
+                echo "${to_run}\n"
+
                 zsh -c $to_run
         else
                 # New Rails5 version to support line number specification
@@ -26,15 +54,47 @@ railstest() {
                 # We split and join to call rails test correctly
                 test_filename_pattern=$parts[1]
                 line_number_to_test=$parts[2]
+                echo "line_number_to_test: ${line_number_to_test}"
 
-                # I don't think this will work if you actually match multiple files
-                matched_files=(test/**/$test_filename_pattern.rb)
-                if [ $#matched_files -gt 1 ]; then echo "Matched $#matched_files files but this only really works with when 1 file is matched. This will likely fail"; fi
+                matched_files=(test/**/$test_filename_pattern)
+                echo "\n${YELLOW}Files:${RESTORE}"
+                (IFS=$'\n'; printf %s "${matched_files[*]}") # print files with newlines again
+                echo "\n" # Two more newlines
 
                 to_run="${test_command} ${matched_files}:$line_number_to_test"
-                echo " > ${to_run}"
+                echo "${YELLOW}Test command:${RESTORE}"
+                echo "${to_run}"
+
+                [[ $#matched_files -gt 1 && -n $line_number_to_test ]] && echo "\n${RED}Your filename pattern matched multiple files, but you also passed a line number. Minitest doesn't support this.${RESTORE}\n" && return
+
                 zsh -c $to_run
         fi
+}
+
+rt() {
+        parts=("${(@s/:/)${1}}")
+        # If there's a colon in the first arg, assume this is the rails 5 line number syntax
+       
+        file_pattern=$parts[1]
+        line_number=$parts[2]
+
+        test_command="docker-compose exec test bin/rails test"
+
+        # -1 forces one file per line, then tr replaces newlines with spaces
+        files=($(ls -1 test/**/$file_pattern | tr '\n' ' '))
+
+        echo "\n${YELLOW}Files:${RESTORE}"
+        (IFS=$'\n'; printf %s "${files[*]}") # print files with newlines again
+        echo "\n" # Two more newlines
+
+
+        to_run="$test_command $files:$line_number"
+        echo "${YELLOW}Test command:${RESTORE}"
+        echo "${to_run}\n"
+
+        [[ $#files -gt 1 && -n $line_number ]] && echo "\n${RED}Your filename pattern matched multiple files, but you also passed a line number.${RESTORE}" && return
+        
+        zsh -c $to_run
 }
 
 htmysql() {

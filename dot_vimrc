@@ -40,12 +40,14 @@ Plug 'airblade/vim-gitgutter' " Git diff info in the left gutter
 " Handy Commands {{{
 Plug 'godlygeek/tabular'
 Plug 'chiedo/vim-sort-blocks-by'
+Plug 'obreitwi/vim-sort-folds'
 Plug 'habamax/vim-sendtoterm'
 Plug 'chrisbra/unicode.vim'
 " }}}
 
 " Motion enhancers {{{
 Plug 'tpope/vim-commentary' " gc{motion} to comment, or {count}gcc
+Plug 'suy/vim-context-commentstring' " syntax context aware commentstring (js inside html, etc)
 Plug 'tpope/vim-abolish' " Word variant utilities like case-preserving :%S/place{,s}/cit{y,ies}/g
 Plug 'tpope/vim-surround'
 Plug 'tmhedberg/matchit' " make % work in more languages
@@ -64,6 +66,8 @@ Plug 'editorconfig/editorconfig-vim' " Cross-editor code formatting settings
 " Language support {{{
 Plug 'pedrohdz/vim-yaml-folds'
 Plug 'pangloss/vim-javascript'
+Plug 'GutenYe/json5.vim'
+Plug 'jonsmithers/vim-html-template-literals'
 Plug 'mxw/vim-jsx'
 "Plug 'othree/yajs.vim' "Javascript
 "Plug 'ternjs/tern_for_vim' " Tern, JS language support via static analysis
@@ -117,6 +121,13 @@ endfunction
 " set path=.,,**
 
 " {{{ Plugins
+"{{{ vim-html-template-literals
+" let g:html_indent_style1 = 'inc'
+" let g:html_indent_script1 = 'inc'
+"}}}
+"{{{ AndreRadev/splitjoin
+let g:splitjoin_ruby_options_as_arguments = 1
+"}}}
 "{{{ vim-illuminate
 highlight illuminatedWord ctermfg=red
 "}}}
@@ -125,8 +136,7 @@ let g:rg_derive_root=1
 "}}}
 " {{{ Ale config
 let g:ale_fixers = {
-            \ 'javascript': ['prettier', 'eslint'],
-            \ 'javascript.jsx': ['prettier', 'eslint'],
+            \ 'javascript': ['prettier'],
             \ 'ruby': ['rubocop', 'prettier'],
             \ 'cpp': ['clang-format'],
             \ 'css': ['prettier'],
@@ -134,16 +144,17 @@ let g:ale_fixers = {
             \ 'scss': ['stylelint'],
             \}
 
-" let g:ale_linters = {
-"             \ 'javascript': ['eslint', 'tsserver', 'cspell'],
-"             \ 'javascript.jsx': ['eslint', 'tsserver', 'cspell'],
-"             \ 'css': ['stylelint'],
-"             \ 'ruby': ['rubocop', 'brakeman'],
-"             \}
+let g:ale_linters = {
+            \ 'javascript': ['eslint', 'tsserver', 'cspell'],
+            \ 'javascript.jsx': ['eslint', 'tsserver', 'cspell'],
+            \ 'css': ['stylelint'],
+            \ 'ruby': ['rubocop', 'brakeman', 'prettier'],
+            \}
 
 let g:ale_open_list='never'
 let g:ale_fix_on_save=1
 let g:ale_lint_on_text_change=1
+" let g:ale_javascript_eslint_executable = 'eslint_d --cache'
 
 nmap ]v :ALENextWrap<cr>
 nmap [v :ALEPreviousWrap<cr>
@@ -288,7 +299,8 @@ set sidescroll=1
 
 " To make your life easy use `:set guifont=*` to use the picker, then
 " in insert mode issue <c-r><c-r>=&guifont
-set guifont=DejaVu\ Sans\ Mono:h10:cANSI:qDRAFT
+" You may need to insert escapes for spaces
+set guifont=DejaVu\ Sans\ Mono\ 10
 
 " {{{3 statusline
 " {{{ StatusLine colors
@@ -368,7 +380,7 @@ map <leader>exp[ ^mb:s/\(\[\\|,\)\s*/\1\r/g<cr>:s/\s*]/,\r\]/<cr>v'b=:nohls<cr>
 map <leader>bb :Babel<cr>
 
 " [T]est [R]uby
-map <leader>tr :vertical terminal docker-compose run test rake test %<cr>
+map <leader>tr :vertical terminal docker-compose exec test bin/rails test %<cr>
 
 map <leader>tj :vertical terminal ++close yarn watchfile %<cr>
 
@@ -378,7 +390,8 @@ map <leader>to :call TestOpen(1)<cr>
 " fzf maps
 
 " [F]ind [F]iles
-nmap <localleader>ff :GFiles<cr>
+nmap <localleader>gf :GFiles<cr>
+nmap <localleader>ff :Files<cr>
 
 " [F]ind [C]ommits
 nmap <localleader>fc :Commits<cr>
@@ -392,8 +405,17 @@ nmap <localleader>ft :Tags<cr>
 " [F]ind: [G]rep
 nmap <localleader>fg :Rg<space>
 
+" [F]oto [J]umps
+nmap <localleader>fj :Jumps<space><cr>
+
+" [F]oto c[H]anges
+nmap <localleader>fh :Changes<space><cr>
+
 " [G]oto [D]efinition
 nmap <localleader>gd :Tags<space><c-r><c-w><cr>
+
+" [G]oto [R]eferences
+nmap <localleader>gr :Rg<space>"\b<c-r><c-w>\b"<cr>
 
 " [G]oto [U]ses
 nmap <localleader>gu :Rg<space><c-r><c-w><cr>
@@ -419,6 +441,7 @@ xmap <leader>r  <Plug>(SendToTerm)
 nmap <leader>r  <Plug>(SendToTerm)
 omap <leader>r  <Plug>(SendToTerm)
 nmap <leader>rr <Plug>(SendToTermLine)
+nmap <leader>ra m'ggVG<Plug>(SendToTerm)''
 
 " find git diff marker
 let @d='\(<\||\|=\|>\)\{7}'
@@ -460,7 +483,7 @@ vnoremap <Space> zf
 map g= gg=G`'
 
 " clear search highlight
-nmap <c-space> :nohls<cr>
+nmap <c-space> :set nopaste<cr>:nohls<cr>
 " same mapping linux terminals
 nmap <c-@> :nohls<cr>
 
@@ -492,7 +515,7 @@ augroup END "}}}
 augroup python "{{{
     autocmd!
     au BufEnter,BufWinEnter *.py colors wombat256mod
-    au BufEnter *.html setlocal foldmethod=syntax
+    " au BufEnter *.html setlocal foldmethod=syntax
     au BufEnter *.pde setlocal expandtab
     au Filetype python BracelessEnable +fold +indent +highlight
     " nosmartindent to avoid annoying unindenting comments
@@ -551,10 +574,10 @@ augroup jscad "{{{
 augroup END "}}}
 augroup hiringthing "{{{
     autocmd!
-    au Filetype ruby set noexpandtab nolist tabstop=2 shiftwidth=2 fdm=syntax fdl=9 colorcolumn=100 textwidth=100
-    au Filetype javascript     set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=9
-    au Filetype javascript.jsx set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=9
-    au Filetype scss set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=9
+    au Filetype ruby set noexpandtab nolist tabstop=2 shiftwidth=2 fdm=syntax fdl=99 colorcolumn=100 textwidth=100
+    au Filetype javascript     set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=99
+    au Filetype javascript.jsx set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=99
+    au Filetype scss set nolist noexpandtab tabstop=2 colorcolumn=100 textwidth=100 fdl=99
 augroup END "}}}
 augroup autoread "{{{
     " https://stackoverflow.com/questions/2490227/how-does-vims-autoread-work

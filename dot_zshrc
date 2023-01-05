@@ -11,10 +11,12 @@ antigen theme arialdomartini/oh-my-git-themes arialdo-granzestyle
 antigen apply
 
 zstyle :omz:plugins:ssh-agent identities id_ed25519 id_hiringthing_20220614 id_github_20220617
+ssh-add ~/.ssh/id_github_20220617 ~/.ssh/id_hiringthing_20220614 ~/.ssh/id_ed25519
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 source ~/.zsh_helpers
+source ~/.zsh_bitwarden
 source ~/.hiringthing_functions
 
 # Start up rbenv for Ruby
@@ -24,3 +26,11 @@ alias dc=docker-compose
 
 export GITHUB_ACCESS_TOKEN=$(cat $HOME/.gh_access_token)
 
+# https://enhance.dev/docs/learn/deployment/begin
+export BEGIN_INSTALL="/home/hovis/.begin"
+export PATH="$BEGIN_INSTALL:$PATH"
+export PATH="$HOME/bin:$PATH"
+
+if type tmux >> /dev/null; then
+  tmux ls
+fi
