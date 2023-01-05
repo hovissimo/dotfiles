@@ -1,38 +1,42 @@
 [user]
-        email = github@bunkercode.com
-        name = Hovis
+	email = github@bunkercode.com
+	name = Hovis
 [push]
-        default = simple
+	default = simple
 [alias]
-        amend = commit --amend --no-edit
-        br = branch
-				# commit --verbose flag adds diff when editing commit message
-        ci = commit --verbose 
-        cleanup = !git branch --merged HEAD | grep  -v '\\*\\|$(git main-branch)' | xargs -r -n 1 git branch -d
-        co = checkout
-        diffc = diff --cached
-        grep = grep -Ii # i: ignorecase, I: don't search binary files
-        ignored = !git ls-files -v | grep -e '^[a-z]' # Show me ignored files
-        la = "!git config -l | grep alias | cut -c 7-" # List these aliases
-        ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat # A nice long format that includes files in the commit
-        local-branches = !git branch -vv | cut -c 3- | awk '$3 !~/\\[/ { print $1 }' # Show me branches that are local but not remote (on Github)
-        ls = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit # A really pretty short log format with branch lines
-        ls-conflicts = diff --name-only --diff-filter=U
-        main-branch = !git symbolic-ref refs/remotes/origin/HEAD | cut -d'/' -f4
-        mt = mergetool
-        pushf = push --force-with-lease # see `git help push`, tl;dr is only force the push if you are the last author on the remote branch
-        pushu = push --set-upstream origin HEAD
-        px = "!~/bin/git-pickaxe"
-        rc = rebase --continue
-        ri = rebase --interactive --autosquash
-        rim = "!git rebase --interactive $(git main-branch) --autosquash"
-        st = status
+	amend = commit --amend --no-edit
+	br = branch
+	delete-branch = push origin --delete
+	ci = commit --verbose # commit --verbose flag adds diff when editing commit message
+	cleanup = !git branch --merged HEAD | grep  -v '\\*\\|$(git main-branch)' | xargs -r -n 1 git branch -d
+	co = checkout
+	diffc = diff --cached
+	exclude = "!echo $2 >> .git/info/exclude" # Exclude the named file from version control
+	grep = grep -Ii # i: ignorecase, I: don't search binary files
+	ignored = !git ls-files -v | grep -e '^[a-z]' # Show me ignored files
+				# include doesn't work!
+	include = "!sed /$2/d .git/info/exclude" # Include the named file in version control
+	la = "!git config -l | grep alias | cut -c 7-" # List these aliases
+	ll = log --pretty=format:"%C(yellow)%h\\ %C(magenta)C-%ch\\ %C(magenta)A-%ah%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat # A nice long format that includes files in the commit
+	local-branches = !git branch -vv | cut -c 3- | awk '$3 !~/\\[/ { print $1 }' # Show me branches that are local but not remote (on Github)
+	ls = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit # A really pretty short log format with branch lines
+	ls-conflicts = diff --name-only --diff-filter=U
+	main-branch = !git symbolic-ref refs/remotes/origin/HEAD | cut -d'/' -f4
+	mt = mergetool
+	pushf = push --force-with-lease # see `git help push`, tl;dr is only force the push if you are the last author on the remote branch
+	pushu = push --set-upstream origin HEAD
+	px = "!~/bin/git-pickaxe"
+	rc = rebase --continue
+	ri = rebase --interactive --autosquash
+	rim = "!git rebase --interactive $(git main-branch) --autosquash"
+	st = status
+	lastmerge = log --merges -n 1 --pretty=format:\"%H\"
 [core]
-    excludesfile = .gitignore.local
-    #pager = diff-so-fancy | less --tabs=2 -RFX
-    pager = diff-so-fancy | less -RFX
+	excludesfile = .gitignore.local
+		#pager = diff-so-fancy | less --tabs=2 -RFX
+	pager = diff-so-fancy | less -RFX
 [pager]
-        stash = false # don't steal the screen when showing the stash list
+	stash = false # don't steal the screen when showing the stash list
 [credential "https://github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
@@ -41,3 +45,5 @@
 	helper = !/usr/bin/gh auth git-credential
 [init]
 	defaultBranch = main
+[mergetool]
+	keepBackup = false
