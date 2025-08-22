@@ -1,6 +1,10 @@
 export PATH=$HOME/.local/bin:$PATH
 export EDITOR=vim
 
+# Put npm's "global" under my home dir so I don't need root
+export npm_config_prefix=$HOME/.local/npm-packages
+export PATH=$npm_config_prefix/bin:$PATH
+
 source "$HOME/.antigen/antigen.zsh"
 
 antigen use oh-my-zsh
