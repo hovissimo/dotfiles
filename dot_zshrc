@@ -1,44 +1,72 @@
+eval $(ssh-agent)
+
+setopt AUTO_CD # treat bare directory inputs like a cd
+setopt AUTO_PUSHD # all cd are implicitly pushd
+setopt NOTIFY # notify background job status immediately instead of waiting for next prompt
+setopt MARK_DIRS # append trailing / when completing directory names
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_FIND_NO_DUPS # Don't show duplicates when finding history
+setopt SHARE_HISTORY # Multiple sessions all get the same history file immediately
+
+# Used for rootless globally installed npm modules
+# See https://stackoverflow.com/questions/18088372/how-to-npm-install-global-not-as-root
 export PATH=$HOME/.local/bin:$PATH
 export EDITOR=vim
+
+export HISTFILE=$HOME/.zsh_history
+export HISTSIZE=10000
+export SAVEHIST=10000
 
 # Put npm's "global" under my home dir so I don't need root
 export npm_config_prefix=$HOME/.local/npm-packages
 export PATH=$npm_config_prefix/bin:$PATH
 
-# FZF can be installed as a vim plugin, but my .vimrc installs it to .fzf
-# Add that to the path.
-export PATH=$HOME/.fzf/bin:$PATH
+# Put n's prefix in .local
+export N_PREFIX=$HOME/.local
 
 source "$HOME/.antigen/antigen.zsh"
 
-antigen use oh-my-zsh
-antigen bundle arialdomartini/oh-my-git
-antigen bundle ssh-agent
-antigen theme arialdomartini/oh-my-git-themes arialdo-granzestyle
+# antigen bundle git
+# antigen bundle command-not-found
+# antigen bundle zsh-users/zsh-syntax-highlighting
 
-antigen apply
+# antigen apply
 
-# zstyle :omz:plugins:ssh-agent identities id_ed25519 id_hiringthing_20220614 id_github_20220617
-# ssh-add ~/.ssh/id_github_20220617 ~/.ssh/id_hiringthing_20220614 ~/.ssh/id_ed25519
+ssh-add ~/.ssh/id_ed25519_hovis@izar_20250822
+
+# FZF can be installed as a vim plugin, but my .vimrc installs it to .fzf
+# Add that to the path.
+export PATH=$HOME/.fzf/bin:$PATH
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 source ~/.zsh_helpers
 source ~/.zsh_bitwarden
-source ~/.hiringthing_functions
 
-# Start up rbenv for Ruby
-# eval "$(rbenv init -)"
+alias dc="docker compose"
+alias ll="ls -l --color=auto"
+alias la="ll -a"
 
-alias dc=docker-compose
 
-# export GITHUB_ACCESS_TOKEN=$(cat $HOME/.gh_access_token)
+# Allow interactive prompts for gpg key passwords
+export GPG_TTY=$(tty)
+# Ensure gpg-agent is aware of the current terminal
+# https://superuser.com/questions/520980/how-to-force-gpg-to-use-console-mode-pinentry-to-prompt-for-passwords
+# Hovis: Trying to get commit signging to work inside vim with vi-fugitive
+gpg-connect-agent updatestartuptty /bye
 
 # https://enhance.dev/docs/learn/deployment/begin
 # export BEGIN_INSTALL="/home/hovis/.begin"
 # export PATH="$BEGIN_INSTALL:$PATH"
-# export PATH="$HOME/bin:$PATH"
+
+export GITHUB_ACCESS_TOKEN=$(cat $HOME/.gh_access_token)
+
+# Anthropic Claude
+export ANTHROPIC_API_KEY="$(cat $HOME/.anthropic_api_key)"
 
 if type tmux >> /dev/null; then
   tmux ls
 fi
+
+# starship prompt
+eval "$(starship init zsh)"
