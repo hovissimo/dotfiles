@@ -503,6 +503,13 @@ augroup BgHighlight "{{{
     autocmd WinEnter * set cul
     autocmd WinLeave * set nocul
 augroup END "}}}
+augroup ColorSchemeOverrides "{{{
+    autocmd!
+    " Make the backgrounds transparent (black) on some of my favorite color
+    " schemes
+    autocmd ColorScheme wombat256mod highlight Normal ctermbg=None
+    autocmd ColorScheme gruvbox highlight Normal ctermbg=None
+augroup END "}}}
 augroup filetypes "{{{
     autocmd!
     "au Filetype javascript setlocal tabstop=3 softtabstop=3 shiftwidth=3 smarttab expandtab smartindent
