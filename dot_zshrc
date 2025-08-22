@@ -5,6 +5,10 @@ export EDITOR=vim
 export npm_config_prefix=$HOME/.local/npm-packages
 export PATH=$npm_config_prefix/bin:$PATH
 
+# FZF can be installed as a vim plugin, but my .vimrc installs it to .fzf
+# Add that to the path.
+export PATH=$HOME/.fzf/bin:$PATH
+
 source "$HOME/.antigen/antigen.zsh"
 
 antigen use oh-my-zsh
