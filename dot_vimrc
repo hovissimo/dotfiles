@@ -18,7 +18,7 @@ endif
 " VimPlug modules {{{
 call plug#begin('~/.vim/plugged')
 
-Plug 'sirver/ultisnips'
+" Plug 'sirver/ultisnips'
 Plug 'haya14busa/incsearch.vim' " incsearch for all results and all modes
 Plug 'ludovicchabant/vim-gutentags' " Tag manager
 Plug 'triglav/vim-visual-increment' " c-v then c-a to auto-increment numbers
@@ -40,7 +40,7 @@ Plug 'airblade/vim-gitgutter' " Git diff info in the left gutter
 " Handy Commands {{{
 Plug 'godlygeek/tabular'
 Plug 'chiedo/vim-sort-blocks-by'
-Plug 'obreitwi/vim-sort-folds'
+" Plug 'obreitwi/vim-sort-folds'
 Plug 'habamax/vim-sendtoterm'
 Plug 'chrisbra/unicode.vim'
 " }}}
@@ -64,6 +64,8 @@ Plug 'editorconfig/editorconfig-vim' " Cross-editor code formatting settings
 " }}}
 
 " Language support {{{
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
 Plug 'pedrohdz/vim-yaml-folds'
 Plug 'pangloss/vim-javascript'
 Plug 'GutenYe/json5.vim'
@@ -98,6 +100,10 @@ Plug 'vim-scripts/wombat256.vim' " wombat256mod colorscheme
 Plug 'fcpg/vim-orbital' " orbital colorscheme
 Plug 'kmszk/skyhawk' " colorscheme
 Plug 'nathanaelkane/vim-indent-guides' " shows indentation levels
+" }}}
+
+" AI Assistant {{{
+Plug 'Exafunction/codeium.vim'
 " }}}
 
 " let g:jsx_ext_required = 0
@@ -176,12 +182,36 @@ let g:UltiSnipsEditSplit="horizontal"
 let g:javascript_plugin_jsdoc = 1
 let g:javascript_plugin_flow = 0
 " }}}
+" {{{ Codeium
+" Codeium provides free AI-powered autocomplete
+" No API key needed - authenticate on first use
+
+" Key mappings for Codeium
+" Accept suggestion: Tab (default)
+" Clear current suggestion: Ctrl+]
+" Next suggestion: Alt+]
+" Previous suggestion: Alt+[
+" Manual trigger: Alt+\
+
+" Optional: Disable Codeium by default (enable per-buffer with :Codeium Enable)
+let g:codeium_enabled = v:false
+
+" Optional: Disable Codeium for specific filetypes
+" let g:codeium_filetypes = {
+"     \ "gitcommit": v:false,
+"     \ }
+" }}}
+" }}}
 " }}}
 
 " {{{ Set
 " {{{2 FZF
 let g:fzf_layout = { 'down': '30%' }
 " }}}2 FZF
+" {{{2 Folding
+set foldmethod=syntax
+set foldlevel=99
+" }}}2 Folding
 " {{{2 grepprg
 if executable("rg")
     set grepprg=rg\ --vimgrep\ --no-heading\ -S
@@ -379,15 +409,10 @@ map <leader>exp[ ^mb:s/\(\[\\|,\)\s*/\1\r/g<cr>:s/\s*]/,\r\]/<cr>v'b=:nohls<cr>
 
 map <leader>bb :Babel<cr>
 
-" [T]est [R]uby
-map <leader>tr :vertical terminal docker-compose exec test bin/rails test %<cr>
-
-map <leader>tj :vertical terminal ++close yarn watchfile %<cr>
-
-" [T]est [O]pen
-map <leader>to :call TestOpen(1)<cr>
-
 " fzf maps
+
+" [C]lose hidden [b]uffers
+nmap <leader>cb :call CloseHiddenBuffers()<cr>
 
 " [F]ind [F]iles
 nmap <localleader>gf :GFiles<cr>
@@ -519,6 +544,14 @@ augroup filetypes "{{{
     au Filetype arduino setlocal sw=2 sts=2 expandtab smarttab ts=2 foldmethod=marker foldmarker={,}
     au Filetype cpp setlocal sw=2 sts=2 expandtab smarttab
 augroup END "}}}
+if executable("expert")
+        augroup lsp_expert
+                autocmd!
+                autocmd User lsp_setup call lsp#register_server({ 'name': 'expert', 'cmd': {server_info->['/Users/hovis/.local/bin/expert']}, 'allowlist': ['elixir', 'eelixir'] })
+                autocmd FileType elixir setlocal omnifunc=lsp#complete
+                autocmd FileType eelixir setlocal omnifunc=lsp#complete
+        augroup end
+endif
 augroup python "{{{
     autocmd!
     au BufEnter,BufWinEnter *.py colors wombat256mod
@@ -579,6 +612,10 @@ augroup jscad "{{{
     autocmd!
     au BufRead,BufNewFile *.scad set filetype=javascript
 augroup END "}}}
+augroup instinct "{{{
+        autocmd!
+        au Filetype elixir set expandtab list tabstop=2 shiftwidth=2 foldmethod=syntax fdl=99 colorcolumn=100 textwidth=100
+augroup END "}}}
 augroup hiringthing "{{{
     autocmd!
     au Filetype ruby set noexpandtab nolist tabstop=2 shiftwidth=2 fdm=syntax fdl=99 colorcolumn=100 textwidth=100
@@ -613,22 +650,6 @@ augroup END
 " Autocommands }}}
 
 " {{{ Functions
-" {{{2 JS testfile
-function! TestOpen(create_as_necessary)
-    let l:testdir = expand('%:p:h') . '/test/'
-    let l:testfilename=l:testdir . expand('%:t:r') . '.spec.js'
-    echo (a:create_as_necessary)
-    if (a:create_as_necessary)
-        call system('mkdir -p ' . l:testdir)
-    endif
-    if filereadable(l:testfilename) || a:create_as_necessary
-        execute 'vs ' . l:testfilename
-        execute 'vertical terminal ++close yarn watchfile ' . l:testfilename
-    else
-        echo l:testfilename . " is unavailable."
-    endif
-endfunction
-" }}}2
 " {{{2 CloseHiddenBuffers
 function! CloseHiddenBuffers()
     " figure out which buffers are visible in any tab
