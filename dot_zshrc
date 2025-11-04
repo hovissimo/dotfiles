@@ -1,10 +1,12 @@
-eval $(ssh-agent)
+autoload -Uz compinit
+compinit
 
 setopt AUTO_CD # treat bare directory inputs like a cd
 setopt AUTO_PUSHD # all cd are implicitly pushd
 setopt NOTIFY # notify background job status immediately instead of waiting for next prompt
 setopt MARK_DIRS # append trailing / when completing directory names
 setopt HIST_EXPIRE_DUPS_FIRST
+setopt HISTIGNORESPACE # commands starting with a space aren't added to history
 setopt HIST_FIND_NO_DUPS # Don't show duplicates when finding history
 setopt SHARE_HISTORY # Multiple sessions all get the same history file immediately
 
@@ -12,6 +14,9 @@ setopt SHARE_HISTORY # Multiple sessions all get the same history file immediate
 # See https://stackoverflow.com/questions/18088372/how-to-npm-install-global-not-as-root
 export PATH=$HOME/.local/bin:$PATH
 export EDITOR=vim
+
+# Using the 1Password SSH agent
+export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 
 export HISTFILE=$HOME/.zsh_history
 export HISTSIZE=10000
@@ -21,18 +26,12 @@ export SAVEHIST=10000
 export npm_config_prefix=$HOME/.local/npm-packages
 export PATH=$npm_config_prefix/bin:$PATH
 
-# Put n's prefix in .local
-export N_PREFIX=$HOME/.local
+# Zig 0.14.1 (keg-only version)
+export PATH="/opt/homebrew/opt/zig@0.14/bin:$PATH"
 
-source "$HOME/.antigen/antigen.zsh"
+alias ll="ls -l --color=auto"
+alias la="ll -a"
 
-# antigen bundle git
-# antigen bundle command-not-found
-# antigen bundle zsh-users/zsh-syntax-highlighting
-
-# antigen apply
-
-ssh-add ~/.ssh/id_ed25519_hovis@izar_20250822
 
 # FZF can be installed as a vim plugin, but my .vimrc installs it to .fzf
 # Add that to the path.
@@ -40,33 +39,26 @@ export PATH=$HOME/.fzf/bin:$PATH
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-source ~/.zsh_helpers
-source ~/.zsh_bitwarden
-
-alias dc="docker compose"
-alias ll="ls -l --color=auto"
-alias la="ll -a"
-
-
-# Allow interactive prompts for gpg key passwords
-export GPG_TTY=$(tty)
-# Ensure gpg-agent is aware of the current terminal
-# https://superuser.com/questions/520980/how-to-force-gpg-to-use-console-mode-pinentry-to-prompt-for-passwords
-# Hovis: Trying to get commit signging to work inside vim with vi-fugitive
-gpg-connect-agent updatestartuptty /bye
-
-# https://enhance.dev/docs/learn/deployment/begin
-# export BEGIN_INSTALL="/home/hovis/.begin"
-# export PATH="$BEGIN_INSTALL:$PATH"
-
-export GITHUB_ACCESS_TOKEN=$(cat $HOME/.gh_access_token)
+source $HOME/bin/groom_history_function.zsh
 
 # Anthropic Claude
-export ANTHROPIC_API_KEY="$(cat $HOME/.anthropic_api_key)"
-
-if type tmux >> /dev/null; then
-  tmux ls
-fi
+# Unset because Clode Code wants to the use the Anthropic Console key
+# export ANTHROPIC_API_KEY="$(cat $HOME/.anthropic_api_key)"
 
 # starship prompt
 eval "$(starship init zsh)"
+
+# INSTINCT
+export ASDF_DATA_DIR="$HOME/.asdf"
+export PATH="$ASDF_DATA_DIR/shims:$PATH"
+# Refresh auth token with expanded scopes to gain read access to the github package repo for npm
+# https://cli.github.com/manual/gh_auth_refresh
+export WS_GITHUB_TOKEN=$(gh auth token)
+
+export DEV_SCRIPTS_DIR=$HOME/dev/instinctscience/dev_scripts
+source $DEV_SCRIPTS_DIR/init_dev_scripts.sh
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/hovis/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions
