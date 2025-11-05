@@ -40,6 +40,8 @@ export PATH=$HOME/.fzf/bin:$PATH
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 source $HOME/bin/groom_history_function.zsh
+source $HOME/.local/bin/git-include # git-include function
+source $HOME/.local/bin/git-exclude # git-exclude function
 
 # Anthropic Claude
 # Unset because Clode Code wants to the use the Anthropic Console key
@@ -62,3 +64,5 @@ fpath=(/Users/hovis/.docker/completions $fpath)
 autoload -Uz compinit
 compinit
 # End of Docker CLI completions
+
+bindkey -e

@@ -11,11 +11,10 @@
 	cleanup = !git branch --merged HEAD | grep  -v '\\*\\|$(git main-branch)' | xargs -r -n 1 git branch -d
 	co = checkout
 	diffc = diff --cached
-	exclude = "!echo $2 >> .git/info/exclude" # Exclude the named file from version control
+        include = !zsh -ic 'git-include \"$@\"' -- # Include the named file in version control
+        exclude = !zsh -ic 'git-exclude \"$@\"' --  # Exclude the named file from version control
 	grep = grep -Ii # i: ignorecase, I: don't search binary files
 	ignored = !git ls-files -v | grep -e '^[a-z]' # Show me ignored files
-				# include doesn't work!
-	include = "!sed /$2/d .git/info/exclude" # Include the named file in version control
 	la = "!git config -l | grep alias | cut -c 7-" # List these aliases
 	ll = log --pretty=format:"%C(yellow)%h\\ %C(magenta)C-%ch\\ %C(magenta)A-%ah%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat # A nice long format that includes files in the commit
 	local-branches = !git branch -vv | cut -c 3- | awk '$3 !~/\\[/ { print $1 }' # Show me branches that are local but not remote (on Github)
@@ -39,11 +38,14 @@
 	stash = false # don't steal the screen when showing the stash list
 [credential "https://github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !gh auth git-credential
 [init]
 	defaultBranch = main
 [mergetool]
 	keepBackup = false
+	prompt = false
+[merge]
+	tool = vimdiff
