@@ -1,3 +1,5 @@
+# Authored by claude, Hovis supervising
+#
 # groom_history - Interactive zsh history cleanup using fzf
 #
 # DESCRIPTION:
@@ -38,12 +40,13 @@
 function groom_history() {
   local selected
 
-  # Load all history, remove line numbers, deduplicate, and present in fzf
+  # Load all history, reverse for most-recent-first, deduplicate, present in fzf
   # fc -l 1: List all history from entry 1 to present
-  # awk: Strip the line numbers from fc output
-  # sort -u: Sort and remove duplicate entries
+  # tail -r: Reverse so most recent entries appear first (macOS)
+  # awk #1: Strip the line numbers from fc output
+  # awk #2: Deduplicate while preserving most-recent-first order
   # fzf --multi: Enable multi-select mode (TAB to select)
-  selected=$(fc -l 1 | awk '{$1=""; print substr($0,2)}' | sort -u | fzf --multi --height=40% --reverse --prompt="Select commands to purge (TAB to select multiple): ")
+  selected=$(fc -l 1 | tail -r | awk '{$1=""; print substr($0,2)}' | awk '!seen[$0]++' | fzf --multi --height=40% --reverse --prompt="Select commands to purge (TAB to select multiple): ")
 
   # Only proceed if user selected something (didn't cancel with ESC)
   if [[ -n "$selected" ]]; then
@@ -54,11 +57,27 @@ function groom_history() {
     # IFS= read -r: Read without word splitting or backslash interpretation
     # <<< "$selected": Here-string to iterate over each line of selected commands
     while IFS= read -r line; do
-      # grep -F: Literal string match (not regex)
-      # grep -x: Match whole line only
-      # grep -v: Invert match (remove matching lines)
-      # We use a two-file shuffle to safely remove each entry
-      grep -Fxv "$line" "${HISTFILE}.tmp" > "${HISTFILE}.tmp2"
+      # Filter out lines matching this command from the history file
+      # Handle both plain format (command) and extended format (: timestamp:elapsed;command)
+      # Also handle escaped colons: commands like ":term" are stored as "\:term"
+      while IFS= read -r hist_line; do
+        # Extract command from history line (strip timestamp prefix if present)
+        local cmd="$hist_line"
+        # Check if line starts with ": " (extended format)
+        if [[ "${hist_line:0:2}" == ": " ]]; then
+          # Find the second colon and semicolon, extract everything after the semicolon
+          # Format is: ": timestamp:elapsed;command"
+          cmd="${hist_line#*;}"
+        fi
+
+        # Unescape the command if it starts with backslash-colon
+        if [[ "${cmd:0:2}" == '\:' ]]; then
+          cmd=":${cmd:2}"
+        fi
+
+        # Keep line if command doesn't match
+        [[ "$cmd" != "$line" ]] && echo "$hist_line"
+      done < "${HISTFILE}.tmp" > "${HISTFILE}.tmp2"
       mv -f "${HISTFILE}.tmp2" "${HISTFILE}.tmp"
       echo "Removed: $line"
     done <<< "$selected"

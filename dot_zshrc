@@ -10,13 +10,11 @@ setopt HISTIGNORESPACE # commands starting with a space aren't added to history
 setopt HIST_FIND_NO_DUPS # Don't show duplicates when finding history
 setopt SHARE_HISTORY # Multiple sessions all get the same history file immediately
 
-# Used for rootless globally installed npm modules
+# Rootless globally installed npm modules
 # See https://stackoverflow.com/questions/18088372/how-to-npm-install-global-not-as-root
 export PATH=$HOME/.local/bin:$PATH
+export PATH=$HOME/bin:$PATH
 export EDITOR=vim
-
-# Using the 1Password SSH agent
-export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 
 export HISTFILE=$HOME/.zsh_history
 export HISTSIZE=10000
@@ -26,43 +24,74 @@ export SAVEHIST=10000
 export npm_config_prefix=$HOME/.local/npm-packages
 export PATH=$npm_config_prefix/bin:$PATH
 
-# Zig 0.14.1 (keg-only version)
-export PATH="/opt/homebrew/opt/zig@0.14/bin:$PATH"
-
 alias ll="ls -l --color=auto"
 alias la="ll -a"
-
+alias dc="docker compose"
+alias movconvert='f() { ffmpeg -i "$1" -c:v libx264 -crf 23 -c:a aac -movflags +faststart "${1%.mov}.mp4"; }; f'
+alias tf="terraform"
 
 # FZF can be installed as a vim plugin, but my .vimrc installs it to .fzf
 # Add that to the path.
 export PATH=$HOME/.fzf/bin:$PATH
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/bin/fzf-git.sh ] && source ~/bin/fzf-git.sh
 
 source $HOME/bin/groom_history_function.zsh
 source $HOME/.local/bin/git-include # git-include function
 source $HOME/.local/bin/git-exclude # git-exclude function
 
 # Anthropic Claude
-# Unset because Clode Code wants to the use the Anthropic Console key
+# Unset because Claude Code wants to use the Anthropic Console key
 # export ANTHROPIC_API_KEY="$(cat $HOME/.anthropic_api_key)"
 
-# starship prompt
-eval "$(starship init zsh)"
+# MCP Remote token persistence for Atlassian MCP
+export MCP_REMOTE_CACHE_DIR="$HOME/.cache/mcp-remote"
+mkdir -p "$HOME/.cache/mcp-remote"
 
-# INSTINCT
+# starship prompt
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+
+# asdf version manager (https://asdf-vm.com)
 export ASDF_DATA_DIR="$HOME/.asdf"
 export PATH="$ASDF_DATA_DIR/shims:$PATH"
-# Refresh auth token with expanded scopes to gain read access to the github package repo for npm
-# https://cli.github.com/manual/gh_auth_refresh
-export WS_GITHUB_TOKEN=$(gh auth token)
 
-export DEV_SCRIPTS_DIR=$HOME/dev/instinctscience/dev_scripts
-source $DEV_SCRIPTS_DIR/init_dev_scripts.sh
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/hovis/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
+# kubectl completions
+command -v kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
+
+# direnv (https://direnv.net)
+command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
+
+# todo CLI completions
+command -v todo >/dev/null 2>&1 && eval "$(todo completions)"
 
 bindkey -e
+# Right-delete on Mac with a PC keyboard (also needs a kitty send_text mapping)
+bindkey "^[[3~" delete-char
+
+# Non-destructive terminal recovery: stty sane + exit alt screen + show cursor + DECSTR soft reset.
+# Preserves screen and scrollback. Follow with Ctrl-L (or :redraw! in vim) if needed.
+alias fixit='stty sane; printf "\e[?1049l\e[?25h\e[!p"'
+
+# macOS-only configuration
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # 1Password SSH agent
+  export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+
+  # Zig 0.14.1 (keg-only homebrew version)
+  [ -d /opt/homebrew/opt/zig@0.14/bin ] && export PATH="/opt/homebrew/opt/zig@0.14/bin:$PATH"
+
+  # Docker Desktop completions
+  if [ -d "$HOME/.docker/completions" ]; then
+    fpath=("$HOME/.docker/completions" $fpath)
+    autoload -Uz compinit && compinit
+  fi
+
+  alias restart_aws_vpn='sudo pkill -9 -f "AWS VPN Client" && sleep 1 && open -a "AWS VPN Client"'
+  # Launch Chrome with remote debugging for chrome-devtools MCP attach mode.
+  # Quit Chrome (Cmd+Q) first; only one Chrome can hold the user-data-dir.
+  alias chrome-mcp='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 >/dev/null 2>&1 &'
+fi
+
+# Instinct-specific (not in version control)
+[ -f $HOME/.zshrc_instinct ] && source $HOME/.zshrc_instinct

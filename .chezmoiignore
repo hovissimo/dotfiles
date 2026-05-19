@@ -16,7 +16,17 @@ tags
 
 # Instinct internal helpers — company IP, not for personal repo
 .instinct*
+.zshrc_instinct
+
+# Per-host or tool-managed, not portable
+.zprofile
+.tool-versions
+.sqlfluff
+.yarnrc
 
 # Installer artifacts (managed by their own installers)
 .fzf.bash
 .fzf.zsh
+
+# This README is for the source repo, not for $HOME
+README.md

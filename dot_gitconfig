@@ -10,6 +10,7 @@
 	ci = commit --verbose # commit --verbose flag adds diff when editing commit message
 	cleanup = !git branch --merged HEAD | grep  -v '\\*\\|$(git main-branch)' | xargs -r -n 1 git branch -d
 	co = checkout
+        cpick = cherry-pick
 	diffc = diff --cached
         include = !zsh -ic 'git-include \"$@\"' -- # Include the named file in version control
         exclude = !zsh -ic 'git-exclude \"$@\"' --  # Exclude the named file from version control
@@ -30,6 +31,7 @@
 	rim = "!git rebase --interactive $(git main-branch) --autosquash"
 	st = status
 	lastmerge = log --merges -n 1 --pretty=format:\"%H\"
+	mb = "!git merge-base ${1:-$(git main-branch)} HEAD #"
 [core]
 	excludesfile = .gitignore.local
 		#pager = diff-so-fancy | less --tabs=2 -RFX

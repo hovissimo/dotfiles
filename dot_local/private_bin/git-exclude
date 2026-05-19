@@ -1,0 +1,28 @@
+#! /bin/zsh
+# Add a file to .git/info/exclude, removing it from version control
+git-exclude() {
+    if [ -z "$1" ]; then
+        echo "Usage: git-exclude <pattern>"
+        return 1
+    fi
+
+    local exclude_file="$(git rev-parse --git-dir 2>/dev/null)/info/exclude"
+
+    if [ $? -ne 0 ]; then
+        echo "Error: Not in a git repository"
+        return 1
+    fi
+
+    local exclude_dir="$(dirname "$exclude_file")"
+    if [ ! -d "$exclude_dir" ]; then
+        mkdir -p "$exclude_dir"
+    fi
+
+    if [ -f "$exclude_file" ] && grep -qF "$1" "$exclude_file"; then
+        echo "Pattern '$1' already exists in $exclude_file"
+        return 0
+    fi
+
+    echo "$1" >> "$exclude_file" && \
+    echo "Added '$1' to $exclude_file"
+}

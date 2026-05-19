@@ -182,8 +182,8 @@ format = " [$branch(:$remote_branch)]($style)"
 symbol = "[△](bold italic bright-blue)"
 style = "italic bright-blue"
 truncation_symbol = "⋯"
-truncation_length = 11
-ignore_branches = ["main", "master"]
+truncation_length = 99
+ignore_branches = []
 only_attached = true
 
 [git_metrics]

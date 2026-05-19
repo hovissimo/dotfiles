@@ -1,0 +1,30 @@
+#! /bin/zsh
+# Remove a file from .git/info/exclude, adding it back to version control
+
+git-include() {
+  if [ -z "$1" ]; then
+    echo "Usage: git-include <pattern>"
+    return 1
+  fi
+
+  local exclude_file="$(git rev-parse --git-dir 2>/dev/null)/info/exclude"
+
+  if [ $? -ne 0 ]; then
+    echo "Error: Not in a git repository"
+    return 1
+  fi
+
+  if [ ! -f "$exclude_file" ]; then
+    echo "No exclude file found at $exclude_file"
+    return 1
+  fi
+
+  if grep -qF "$1" "$exclude_file"; then
+    grep -vF "$1" "$exclude_file" > "${exclude_file}.tmp" && \
+    mv "${exclude_file}.tmp" "$exclude_file" && \
+    echo "Removed '$1' from $exclude_file"
+  else
+    echo "Pattern '$1' not found in $exclude_file"
+  fi
+}
+
