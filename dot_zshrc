@@ -73,6 +73,11 @@ bindkey "^[[3~" delete-char
 # Preserves screen and scrollback. Follow with Ctrl-L (or :redraw! in vim) if needed.
 alias fixit='stty sane; printf "\e[?1049l\e[?25h\e[!p"'
 
+# Ubuntu-only configuration
+if grep -qi ubuntu /etc/os-release 2>/dev/null; then
+  alias bat='batcat'  # Ubuntu installs bat as batcat to avoid naming conflict
+fi
+
 # macOS-only configuration
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # 1Password SSH agent
