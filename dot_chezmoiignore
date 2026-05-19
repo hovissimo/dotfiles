@@ -4,3 +4,19 @@
 .vim/temp/*
 .vim/backup/*
 .viminfo
+
+# Build artifacts
+tags
+
+# Secrets — keep in 1Password, not dotfiles
+.anthropic_api_key
+.gh_access_token
+.jira_api_token
+.claude.json*
+
+# Instinct internal helpers — company IP, not for personal repo
+.instinct*
+
+# Installer artifacts (managed by their own installers)
+.fzf.bash
+.fzf.zsh
